@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+
+# VS Code extension testing
+.vscode-test/
+
+# Environment variables
+.env
+.env.local
+
+# VS Code extension packages
+*.vsix
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+*.swp
+*.swo
