@@ -1,5 +1,5 @@
 # Product Requirements Document (PRD)
-## CodeGuard — AI-Powered Git Conflict & Security Intelligence Platform
+## ConflictLens — AI-Powered Git Conflict & Security Intelligence Platform
 
 **Version:** 1.0
 **Date:** August 18, 2026
@@ -12,7 +12,7 @@
 ## 1. Overview
 
 ### 1.1 Product Name
-**CodeGuard**
+**ConflictLens**
 
 ### 1.2 One-Line Pitch
 > "Don't wait for the merge to reveal the problem. CodeGuard predicts it before it happens."
