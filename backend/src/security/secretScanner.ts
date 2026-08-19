@@ -185,7 +185,7 @@ const SECRET_RULES: SecretRule[] = [
     name: "Generic API Key / Token / Secret Assignment",
     category: "hardcoded_secret",
     pattern:
-      /(?:api[_-]?key|secret|token|access[_-]?key|auth[_-]?token|api[_-]?secret|client[_-]?secret|private[_-]?key|password|passwd|credentials?)\s*[:=]\s*["']([^"']{8,})["']/i,
+      /(?:api[_-]?key|secret|token|access[_-]?key|auth[_-]?token|api[_-]?secret|client[_-]?secret|private[_-]?key|password|passwd|pwd|pass|credentials?)\s*[:=]\s*["']([^"']{8,})["']/i,
     suggestedRiskLevel: "high",
     confidence: "medium",
     redact: (match, line) => defaultRedact(line, match[1]),

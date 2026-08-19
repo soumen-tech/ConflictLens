@@ -29,28 +29,42 @@ export function parseUnifiedDiff(rawDiff: string): DiffFileEntry[] {
   let currentAddedLines: AddedLine[] = [];
   let currentNewLineNumber = 0;
 
+  const pushCurrentFile = () => {
+    if (currentFile !== null && currentAddedLines.length > 0) {
+      const existing = files.find((f) => f.file === currentFile);
+      if (existing) {
+        existing.addedLines.push(...currentAddedLines);
+      } else {
+        files.push({ file: currentFile, addedLines: currentAddedLines });
+      }
+    }
+    currentAddedLines = [];
+  };
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
+    // Detect git diff header: "diff --git a/path b/path"
+    const diffGitMatch = line.match(/^diff --git a\/(.*) b\/(.*)$/);
+    if (diffGitMatch) {
+      pushCurrentFile();
+      currentFile = diffGitMatch[2];
+      currentNewLineNumber = 0;
+      continue;
+    }
+
     // Detect new file: "+++ b/path/to/file"
     if (line.startsWith("+++ b/")) {
-      // Save previous file if any
-      if (currentFile !== null) {
-        files.push({ file: currentFile, addedLines: currentAddedLines });
-      }
+      pushCurrentFile();
       currentFile = line.substring(6); // strip "+++ b/"
-      currentAddedLines = [];
       currentNewLineNumber = 0;
       continue;
     }
 
     // Also detect "+++ /dev/null" (deleted files — skip)
     if (line.startsWith("+++ /dev/null")) {
-      if (currentFile !== null) {
-        files.push({ file: currentFile, addedLines: currentAddedLines });
-      }
+      pushCurrentFile();
       currentFile = null;
-      currentAddedLines = [];
       continue;
     }
 
@@ -66,7 +80,6 @@ export function parseUnifiedDiff(rawDiff: string): DiffFileEntry[] {
 
     // Skip diff metadata lines
     if (
-      line.startsWith("diff --git") ||
       line.startsWith("index ") ||
       line.startsWith("new file mode") ||
       line.startsWith("deleted file mode") ||
@@ -80,10 +93,13 @@ export function parseUnifiedDiff(rawDiff: string): DiffFileEntry[] {
       continue;
     }
 
-    if (currentFile === null) continue;
-
     // Added line: starts with "+"
     if (line.startsWith("+")) {
+      if (line.startsWith("+++ ")) continue; // Skip header lines
+      if (currentFile === null) {
+        currentFile = "unknown_file";
+        currentNewLineNumber = 1;
+      }
       const content = line.substring(1); // strip the leading "+"
       currentAddedLines.push({
         lineNumber: currentNewLineNumber,
@@ -98,23 +114,24 @@ export function parseUnifiedDiff(rawDiff: string): DiffFileEntry[] {
       continue;
     }
 
-    // Context line: starts with " " (increment new line number but don't capture)
+    // Context line: starts with " " or is empty
     if (line.startsWith(" ") || line === "") {
-      currentNewLineNumber++;
+      if (currentFile !== null) {
+        currentNewLineNumber++;
+      }
       continue;
     }
 
     // "\ No newline at end of file" — ignore
     if (line.startsWith("\\")) continue;
 
-    // Any other line — might be part of context, increment line number
-    currentNewLineNumber++;
+    // Any other line — might be part of context
+    if (currentFile !== null) {
+      currentNewLineNumber++;
+    }
   }
 
-  // Save the last file
-  if (currentFile !== null) {
-    files.push({ file: currentFile, addedLines: currentAddedLines });
-  }
+  pushCurrentFile();
 
   return files;
 }
@@ -127,7 +144,8 @@ export function parseUnifiedDiff(rawDiff: string): DiffFileEntry[] {
  * @returns The same entries (validates shape)
  */
 export function fromParsedDiff(entries: DiffFileEntry[]): DiffFileEntry[] {
+  if (!entries || !Array.isArray(entries)) return [];
   return entries.filter(
-    (e) => e.file && Array.isArray(e.addedLines)
+    (e) => e && e.file && Array.isArray(e.addedLines)
   );
 }
