@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "vite"
+    "dev": "vite",
+    "test": "echo webview-test"
   },
   "dependencies": {
     "react": "^18.2.0",

@@ -39,7 +39,7 @@
         },
         "conflictlens.apiEndpoint": {
           "type": "string",
-          "default": "",
+          "default": "http://localhost:3000/analyze",
           "description": "URL of the local ConflictLens analysis server (Members 1 & 2). Example: http://localhost:3000/analyze. Leave empty to use built-in mock data for offline / UI development."
         },
         "conflictlens.apiTimeoutMs": {
@@ -58,8 +58,10 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile:ext": "tsc -p ./",
-    "compile:webview": "cd webview && cmd /c npm run build",
+    "compile:webview": "npm run build --workspace=conflictlens-dashboard",
     "compile": "npm run compile:webview && npm run compile:ext",
+    "build": "npm run compile",
+    "test": "node smoke-test.js",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts"
   },

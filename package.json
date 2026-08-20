@@ -4,7 +4,11 @@
   "description": "CodeGuard — AI-powered Git conflict & security intelligence platform",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "backend",
+    "extension",
+    "extension/webview",
+    "shared"
   ],
   "scripts": {
     "build": "npm run build --workspaces",
