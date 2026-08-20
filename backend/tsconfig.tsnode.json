@@ -6,6 +6,15 @@
     "skipLibCheck": true,
     "strict": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": {
+      "@codeguard/git-engine": ["packages/git-engine/src/index.ts"],
+      "@codeguard/shared": ["shared/src/index.ts"]
+    }
+  },
+  "ts-node": {
+    "transpileOnly": false,
+    "files": true
   }
 }

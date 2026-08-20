@@ -4,8 +4,11 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": ["ES2022"],
+    "baseUrl": "../..",
+    "paths": {
+      "@codeguard/shared": ["shared/src/index.ts"]
+    },
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
