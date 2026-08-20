@@ -1,4 +1,4 @@
-# SYSTEM ARCHITECTURE: CodeGuard
+# SYSTEM ARCHITECTURE: ConflictLens
 ## AI-Powered Git Conflict & Security Intelligence Platform
 
 This document defines the structural design of CodeGuard, detailing how the VS Code client, the local analysis engine, and the external AI layer interact to detect semantic and security risks before a branch is merged.

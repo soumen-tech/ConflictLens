@@ -1,0 +1,41 @@
+# ── OS & editor ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+*.suo
+*.user
+
+# ── Environment / secrets (NEVER commit real .env files) ─────────────────────
+.env
+.env.local
+.env.*.local
+*.env
+
+# ── Node.js ───────────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+
+# ── VS Code extension build output ───────────────────────────────────────────
+extension/out/
+extension/*.vsix
+
+# ── Webview build artefacts (Vite output, already inside extension/out/) ──────
+# (covered by extension/out/ above)
+
+# ── Spurious tsc output inside webview/src/ (generated before tsconfig fix) ──
+extension/webview/src/**/*.js
+extension/webview/src/**/*.js.map
+extension/webview/vite.config.js
+extension/webview/vite.config.js.map
+
+# ── Future backend (Members 1 & 2 — Node/Express local analysis engine) ──────
+# When the backend is added, its own node_modules and build output
+# will be covered by the node_modules/ rule above.
+# Add any backend-specific build dirs here once the folder is known, e.g.:
+# backend/dist/
+# backend/build/

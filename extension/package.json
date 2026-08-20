@@ -4,6 +4,7 @@
   "description": "AI-powered semantic conflict and security risk detection — flags issues before merge.",
   "version": "0.0.1",
   "publisher": "conflictlens-team",
+  "icon": "media/icon.png",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -19,7 +20,13 @@
     "commands": [
       {
         "command": "conflictlens.scanNow",
-        "title": "ConflictLens: Scan Now"
+        "title": "ConflictLens: Scan Now",
+        "icon": "$(search)"
+      },
+      {
+        "command": "conflictlens.openDashboard",
+        "title": "ConflictLens: Open Dashboard",
+        "icon": "$(dashboard)"
       }
     ],
     "configuration": {
@@ -28,14 +35,31 @@
         "codeguard.autoScan": {
           "type": "boolean",
           "default": false,
-          "description": "When true, ConflictLens will automatically scan for risks every time a file is saved. Defaults to false to avoid notification noise."
+          "description": "When true, ConflictLens will automatically scan for risks every time a file is saved (debounced, 2 s). Defaults to false to avoid notification noise."
+        },
+        "conflictlens.apiEndpoint": {
+          "type": "string",
+          "default": "",
+          "description": "URL of the local ConflictLens analysis server (Members 1 & 2). Example: http://localhost:3000/analyze. Leave empty to use built-in mock data for offline / UI development."
+        },
+        "conflictlens.apiTimeoutMs": {
+          "type": "number",
+          "default": 8000,
+          "description": "Maximum time (ms) to wait for the local analysis API or Gemini before treating the request as timed out. Default 8000ms matches the PRD's ~5–10 s performance target."
+        },
+        "conflictlens.geminiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your Gemini API key (gemini-2.5-flash). Used to generate plain-English explanations and recommendations for each detected risk. Leave empty to skip AI enrichment."
         }
       }
     }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
+    "compile:ext": "tsc -p ./",
+    "compile:webview": "cd webview && cmd /c npm run build",
+    "compile": "npm run compile:webview && npm run compile:ext",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts"
   },
