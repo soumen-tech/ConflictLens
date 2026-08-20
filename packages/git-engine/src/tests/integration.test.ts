@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file integration.test.ts
  * End-to-end integration tests using real temporary Git repos.
  * Tests the full analyzeBranches() pipeline (Tests 1–8, 13).
@@ -211,7 +211,7 @@ describe("Integration: error handling", () => {
         branchB: "ghost-branch",
       })
     ).rejects.toMatchObject({
-      codeGuardError: { code: "BRANCH_NOT_FOUND" },
+      ConflictLensError: { code: "BRANCH_NOT_FOUND" },
     });
   });
 
@@ -225,7 +225,7 @@ describe("Integration: error handling", () => {
         branchB: "main",
       })
     ).rejects.toMatchObject({
-      codeGuardError: { code: expect.stringMatching(/NOT_A_GIT_REPO|INVALID_REPO_PATH/) },
+      ConflictLensError: { code: expect.stringMatching(/NOT_A_GIT_REPO|INVALID_REPO_PATH/) },
     });
   });
 });

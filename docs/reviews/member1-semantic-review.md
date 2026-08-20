@@ -1,4 +1,4 @@
-# Member 1 Code Review — Git & Semantic Analysis Engine
+﻿# Member 1 Code Review — Git & Semantic Analysis Engine
 
 **Reviewer:** Track 2 (Security + Risk Scoring)
 **Branch reviewed:** `git-semantic-analysis-engine`
@@ -9,7 +9,7 @@
 
 ## 1. WHAT EXISTS
 
-Member 1's code lives at `packages/git-engine/` (TypeScript, using Vitest for testing). It's a monorepo-style package named `@codeguard/git-engine`.
+Member 1's code lives at `packages/git-engine/` (TypeScript, using Vitest for testing). It's a monorepo-style package named `@conflictlens/git-engine`.
 
 | File | Purpose |
 |------|---------|
@@ -20,7 +20,7 @@ Member 1's code lives at `packages/git-engine/` (TypeScript, using Vitest for te
 | `src/core/git/GitMergeBase.ts` | Merge-base computation between two branches |
 | `src/core/git/GitCommit.ts` | Commit divergence analysis (how many commits ahead each branch is) |
 | `src/core/git/GitDiff.ts` | Diff engine — diffs each branch against merge base, returns `ChangedFile[]` with line ranges |
-| `src/core/git/GitErrors.ts` | Typed error taxonomy (`CodeGuardException`) |
+| `src/core/git/GitErrors.ts` | Typed error taxonomy (`ConflictLensException`) |
 | `src/core/git/types.ts` | Internal git module types |
 | `src/core/conflict/DiffRangeParser.ts` | Parses unified diff output into per-file `ChangedRange[]` maps |
 | `src/core/conflict/ConflictDetector.ts` | Uses `git merge-tree` (non-destructive) to validate actual merge conflicts |

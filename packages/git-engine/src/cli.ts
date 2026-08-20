@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+﻿#!/usr/bin/env ts-node
 /**
  * @file cli.ts — Developer debugging CLI
  *
@@ -9,7 +9,7 @@
  *   npm run analyze -- --repo . --base main --compare git-semantic-analysis-engine
  */
 
-import { analyzeBranches, isCodeGuardException } from "./index";
+import { analyzeBranches, isConflictLensException } from "./index";
 
 // ---------------------------------------------------------------------------
 // Argument parsing (no external deps — just process.argv)
@@ -57,7 +57,7 @@ function render(result: Awaited<ReturnType<typeof analyzeBranches>>): void {
   const { repository, branches, commits, files, conflicts, risk, mergeBase, metadata } = result;
 
   console.log("\n" + BOLD + "╔══════════════════════════════════════════╗" + RESET);
-  console.log(BOLD + "║      CodeGuard Git Analysis Report       ║" + RESET);
+  console.log(BOLD + "║      ConflictLens Git Analysis Report       ║" + RESET);
   console.log(BOLD + "╚══════════════════════════════════════════╝" + RESET + "\n");
 
   console.log(CYAN + "Repository:" + RESET, repository.root);
@@ -147,12 +147,12 @@ async function main(): Promise<void> {
     });
     render(result);
   } catch (err) {
-    if (isCodeGuardException(err)) {
-      console.error("\n\x1b[31m✖ CodeGuard Error\x1b[0m");
-      console.error(`  Code:    ${err.codeGuardError.code}`);
-      console.error(`  Message: ${err.codeGuardError.message}`);
-      if (err.codeGuardError.cause) {
-        console.error(`  Cause:   ${err.codeGuardError.cause}`);
+    if (isConflictLensException(err)) {
+      console.error("\n\x1b[31m✖ ConflictLens Error\x1b[0m");
+      console.error(`  Code:    ${err.ConflictLensError.code}`);
+      console.error(`  Message: ${err.ConflictLensError.message}`);
+      if (err.ConflictLensError.cause) {
+        console.error(`  Cause:   ${err.ConflictLensError.cause}`);
       }
     } else {
       console.error("\n\x1b[31m✖ Unexpected Error:\x1b[0m", (err as Error).message);

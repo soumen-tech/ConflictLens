@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file GitMergeBase.ts
  * Phase 4 — Common ancestor (merge base) resolution.
  *
@@ -12,9 +12,9 @@ import { throwError } from "./GitErrors";
 /**
  * Find the common ancestor commit SHA of branchA and branchB.
  *
- * @throws CodeGuardException with MERGE_BASE_UNAVAILABLE for shallow repos or missing history.
- * @throws CodeGuardException with BRANCH_NOT_FOUND for unknown refs.
- * @throws CodeGuardException with GIT_COMMAND_FAILURE for other git errors.
+ * @throws ConflictLensException with MERGE_BASE_UNAVAILABLE for shallow repos or missing history.
+ * @throws ConflictLensException with BRANCH_NOT_FOUND for unknown refs.
+ * @throws ConflictLensException with GIT_COMMAND_FAILURE for other git errors.
  */
 export async function getMergeBase(
   git: SimpleGit,
@@ -35,7 +35,7 @@ export async function getMergeBase(
     return sha;
   } catch (err) {
     // Re-throw our own errors unchanged
-    if ((err as { codeGuardError?: unknown }).codeGuardError) throw err;
+    if ((err as { ConflictLensError?: unknown }).ConflictLensError) throw err;
 
     const errMsg = String((err as Error).message ?? err);
 

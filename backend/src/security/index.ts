@@ -26,7 +26,7 @@ import { scanForSecrets } from "./secretScanner";
 import { scanForInjections } from "./injectionScanner";
 import { riskEngine } from "./riskEngine";
 import { parseUnifiedDiff, fromParsedDiff } from "./diffParser";
-import type { Risk, RiskLevel as SharedRiskLevel } from "@codeguard/shared";
+import type { Risk, RiskLevel as SharedRiskLevel } from "@conflictlens/shared";
 
 // Re-export types for consumers
 export type {

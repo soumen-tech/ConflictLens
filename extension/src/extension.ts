@@ -48,13 +48,13 @@ export function activate(context: vscode.ExtensionContext): void {
   );
   context.subscriptions.push(dashboardCommand);
 
-  // ── File-save listener (debounced, gated by codeguard.autoScan) ───────────
+  // ── File-save listener (debounced, gated by conflictlens.autoScan) ───────────
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
   const DEBOUNCE_MS = 2000;
 
   const saveListener = vscode.workspace.onDidSaveTextDocument(async () => {
     const config = vscode.workspace.getConfiguration();
-    if (!config.get<boolean>('codeguard.autoScan', false)) { return; }
+    if (!config.get<boolean>('conflictlens.autoScan', false)) { return; }
 
     if (debounceTimer !== undefined) { clearTimeout(debounceTimer); }
 

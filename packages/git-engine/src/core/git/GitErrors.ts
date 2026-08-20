@@ -1,15 +1,15 @@
-/**
+﻿/**
  * @file GitErrors.ts
  * Typed error factory. Never throws raw Error objects — always use makeError().
  */
 
-import type { CodeGuardError, CodeGuardErrorCode } from "../../shared/types/gitConflictResult";
+import type { ConflictLensError, ConflictLensErrorCode } from "../../shared/types/gitConflictResult";
 
 export function makeError(
-  code: CodeGuardErrorCode,
+  code: ConflictLensErrorCode,
   message: string,
   cause?: unknown
-): CodeGuardError {
+): ConflictLensError {
   const causeStr =
     cause instanceof Error
       ? cause.message
@@ -20,20 +20,20 @@ export function makeError(
   return { code, message, ...(causeStr !== undefined ? { cause: causeStr } : {}) };
 }
 
-export class CodeGuardException extends Error {
-  public readonly codeGuardError: CodeGuardError;
+export class ConflictLensException extends Error {
+  public readonly ConflictLensError: ConflictLensError;
 
-  constructor(error: CodeGuardError) {
+  constructor(error: ConflictLensError) {
     super(error.message);
-    this.name = "CodeGuardException";
-    this.codeGuardError = error;
+    this.name = "ConflictLensException";
+    this.ConflictLensError = error;
   }
 }
 
 export function throwError(
-  code: CodeGuardErrorCode,
+  code: ConflictLensErrorCode,
   message: string,
   cause?: unknown
 ): never {
-  throw new CodeGuardException(makeError(code, message, cause));
+  throw new ConflictLensException(makeError(code, message, cause));
 }

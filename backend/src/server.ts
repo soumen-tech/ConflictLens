@@ -10,9 +10,9 @@
 
 import express from "express";
 import cors from "cors";
-import { analyzeBranches, adaptGitConflictResult } from "@codeguard/git-engine";
+import { analyzeBranches, adaptGitConflictResult } from "@conflictlens/git-engine";
 import { analyzeSecurityRisks, adaptSecurityRisks } from "./security/index";
-import type { AnalysisResult, Risk } from "@codeguard/shared";
+import type { AnalysisResult, Risk } from "@conflictlens/shared";
 import simpleGit from "simple-git";
 
 const app = express();

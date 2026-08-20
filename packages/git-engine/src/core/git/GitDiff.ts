@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file GitDiff.ts
  * Phase 5 — Git diff engine.
  *
@@ -78,7 +78,7 @@ export async function getDiffFromMergeBase(
 
     return { files, rawDiff: unifiedDiff };
   } catch (err) {
-    if ((err as { codeGuardError?: unknown }).codeGuardError) throw err;
+    if ((err as { ConflictLensError?: unknown }).ConflictLensError) throw err;
     throwError("MALFORMED_DIFF", `Failed to compute diff for branch "${branch}"`, err);
   }
 }

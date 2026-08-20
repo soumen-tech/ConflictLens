@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file securityRisk.types.ts
  * @description SHARED CONTRACT — consumed by all tracks.
  *
@@ -98,7 +98,7 @@ export interface SecurityRisk {
  * Member 1's actual output is `GitConflictResult` which has a different shape.
  * This represents the PRD's expected per-finding shape.
  *
- * TODO: Replace with actual import from @codeguard/git-engine once Member 1
+ * TODO: Replace with actual import from @conflictlens/git-engine once Member 1
  * updates their output to match the shared contract.
  */
 export interface SemanticConflictFinding {

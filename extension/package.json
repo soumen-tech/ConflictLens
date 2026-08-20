@@ -32,7 +32,7 @@
     "configuration": {
       "title": "ConflictLens",
       "properties": {
-        "codeguard.autoScan": {
+        "conflictlens.autoScan": {
           "type": "boolean",
           "default": false,
           "description": "When true, ConflictLens will automatically scan for risks every time a file is saved (debounced, 2 s). Defaults to false to avoid notification noise."
@@ -66,7 +66,7 @@
     "lint": "eslint src --ext ts"
   },
   "dependencies": {
-    "@codeguard/shared": "*"
+    "@conflictlens/shared": "*"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",

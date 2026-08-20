@@ -1,4 +1,4 @@
-# CodeGuard — Git & Semantic Analysis Engine
+﻿# ConflictLens — Git & Semantic Analysis Engine
 
 **Branch:** `git-semantic-analysis-engine`
 **Owner:** Member 1 — Git Intelligence & Conflict Analysis
@@ -89,8 +89,8 @@ packages/git-engine/
 Import the public API and shared types:
 
 ```ts
-import { analyzeBranches, isCodeGuardException } from "@codeguard/git-engine";
-import type { GitConflictResult, ConflictCandidate, ChangedFile } from "@codeguard/git-engine";
+import { analyzeBranches, isConflictLensException } from "@conflictlens/git-engine";
+import type { GitConflictResult, ConflictCandidate, ChangedFile } from "@conflictlens/git-engine";
 
 const result: GitConflictResult = await analyzeBranches({
   repositoryPath: "/path/to/repo",
@@ -107,9 +107,9 @@ const result: GitConflictResult = await analyzeBranches({
 try {
   await analyzeBranches(...);
 } catch (err) {
-  if (isCodeGuardException(err)) {
-    console.error(err.codeGuardError.code);    // "BRANCH_NOT_FOUND"
-    console.error(err.codeGuardError.message); // human-readable
+  if (isConflictLensException(err)) {
+    console.error(err.ConflictLensError.code);    // "BRANCH_NOT_FOUND"
+    console.error(err.ConflictLensError.message); // human-readable
   }
 }
 ```
@@ -121,7 +121,7 @@ try {
 ## Integration for Person 3 (Server / AI / Extension / Dashboard)
 
 ```ts
-import { analyzeBranches } from "@codeguard/git-engine";
+import { analyzeBranches } from "@conflictlens/git-engine";
 
 // Call this from your Express POST /analyze handler:
 const result = await analyzeBranches({

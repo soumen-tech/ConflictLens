@@ -1,7 +1,7 @@
 {
-  "name": "@codeguard/git-engine",
+  "name": "@conflictlens/git-engine",
   "version": "1.0.0",
-  "description": "CodeGuard Git & Conflict Analysis Engine — core/git, core/conflict, core/risk",
+  "description": "ConflictLens Git & Conflict Analysis Engine — core/git, core/conflict, core/risk",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -16,7 +16,7 @@
   "dependencies": {
     "@babel/parser": "^7.29.8",
     "@babel/traverse": "^7.29.8",
-    "@codeguard/shared": "*",
+    "@conflictlens/shared": "*",
     "simple-git": "^3.27.0"
   },
   "devDependencies": {

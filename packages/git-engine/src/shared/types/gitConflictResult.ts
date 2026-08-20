@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file gitConflictResult.ts
  * @description FROZEN shared contract — consumed by Person 2 (Security/Semantic) and
  * Person 3 (Server/AI/Extension/Dashboard). Do NOT change field names or types without
@@ -134,7 +134,7 @@ export interface GitConflictResult {
 // Error taxonomy — typed errors the whole team can catch consistently
 // ---------------------------------------------------------------------------
 
-export type CodeGuardErrorCode =
+export type ConflictLensErrorCode =
   | "NOT_A_GIT_REPO"
   | "BRANCH_NOT_FOUND"
   | "INVALID_REPO_PATH"
@@ -146,8 +146,8 @@ export type CodeGuardErrorCode =
   | "SHALLOW_REPO_LIMITATION"
   | "UNKNOWN";
 
-export interface CodeGuardError {
-  code: CodeGuardErrorCode;
+export interface ConflictLensError {
+  code: ConflictLensErrorCode;
   message: string;
   /** Original error cause, if any */
   cause?: string;

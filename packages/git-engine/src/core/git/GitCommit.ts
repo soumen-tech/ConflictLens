@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file GitCommit.ts
  * Phase 3 — Commit intelligence.
  *
@@ -40,7 +40,7 @@ export async function getCommitInfo(git: SimpleGit, sha: string): Promise<Commit
       message: parts[5],
     };
   } catch (err) {
-    if ((err as { codeGuardError?: unknown }).codeGuardError) throw err;
+    if ((err as { ConflictLensError?: unknown }).ConflictLensError) throw err;
     throwError("GIT_COMMAND_FAILURE", `Failed to fetch commit info for: ${sha}`, err);
   }
 }

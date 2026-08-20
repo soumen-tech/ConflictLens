@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file GitBranch.ts
  * Phase 2 — Branch intelligence.
  *
@@ -124,7 +124,7 @@ export async function listRemoteBranches(git: SimpleGit): Promise<RawBranchInfo[
  * Resolve a branch name (local or remote) to its HEAD SHA.
  * Supports: "main", "feature/payment", "origin/main".
  *
- * @throws CodeGuardException with BRANCH_NOT_FOUND if the ref cannot be resolved.
+ * @throws ConflictLensException with BRANCH_NOT_FOUND if the ref cannot be resolved.
  */
 export async function resolveBranchRef(
   git: SimpleGit,
