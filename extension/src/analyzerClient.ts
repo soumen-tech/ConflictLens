@@ -14,7 +14,7 @@
 
 import * as vscode from 'vscode';
 
-export {
+import {
   Risk,
   AnalysisResult,
   RiskLevel,
@@ -22,6 +22,15 @@ export {
   SemanticConflictDetails,
   SecurityRiskDetails,
 } from '@codeguard/shared';
+
+export {
+  Risk,
+  AnalysisResult,
+  RiskLevel,
+  RiskType,
+  SemanticConflictDetails,
+  SecurityRiskDetails,
+};
 
 // ─── Custom Error Types ───────────────────────────────────────────────────────
 // Extension.ts catches these to show the right notification and decide
