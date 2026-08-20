@@ -16,6 +16,7 @@ import { getDiffFromMergeBase, mergeDiffResults } from "./core/git/GitDiff";
 import { parseDiffOutput } from "./core/conflict/DiffRangeParser";
 import { validateMergeConflicts, buildConflictCandidates } from "./core/conflict/ConflictDetector";
 import { computeRiskScore } from "./core/risk/RiskScorer";
+import { detectSemanticConflicts, semanticConflictsToRisks } from "./core/semantic/SemanticAnalyzer";
 import type { GitConflictResult } from "./shared/types/gitConflictResult";
 import { CodeGuardException } from "./core/git/GitErrors";
 import type { Risk, RiskLevel as SharedRiskLevel } from "@codeguard/shared";
@@ -65,6 +66,11 @@ export function adaptGitConflictResult(result: GitConflictResult): Risk[] {
         recommendation: "Pending AI response...",
       },
     });
+  }
+
+  if (result.semanticConflicts) {
+    const semanticRisks = semanticConflictsToRisks(result.semanticConflicts);
+    risks.push(...semanticRisks);
   }
 
   return risks;
@@ -139,6 +145,38 @@ export async function analyzeBranches(
   // ── Step 8: Build conflict candidates ─────────────────────────────────────
   const conflicts = buildConflictCandidates(allFiles, mergeTreeResult);
 
+  // ── Step 8.5: Run Semantic AST Analysis ───────────────────────────────────
+  const baseFiles = new Map<string, string>();
+  const branchAFiles = new Map<string, string>();
+  const branchBFiles = new Map<string, string>();
+
+  for (const file of allFiles) {
+    const ext = file.path.split('.').pop()?.toLowerCase();
+    if (!["js", "ts", "jsx", "tsx", "mjs", "cjs"].includes(ext || "")) {
+      continue;
+    }
+
+    try {
+      baseFiles.set(file.path, await git.show([`${mergeBase}:${file.path}`]));
+    } catch {
+      baseFiles.set(file.path, "");
+    }
+
+    try {
+      branchAFiles.set(file.path, await git.show([`${branchA}:${file.path}`]));
+    } catch {
+      branchAFiles.set(file.path, "");
+    }
+
+    try {
+      branchBFiles.set(file.path, await git.show([`${branchB}:${file.path}`]));
+    } catch {
+      branchBFiles.set(file.path, "");
+    }
+  }
+
+  const semanticConflicts = detectSemanticConflicts(baseFiles, branchAFiles, branchBFiles);
+
   // ── Step 9: Risk scoring ───────────────────────────────────────────────────
   const risk = computeRiskScore({
     conflicts,
@@ -163,6 +201,7 @@ export async function analyzeBranches(
     },
     files: allFiles,
     conflicts,
+    semanticConflicts,
     risk,
     metadata: {
       analyzedAt: new Date().toISOString(),

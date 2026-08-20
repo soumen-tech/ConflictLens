@@ -248,3 +248,56 @@ describe("Integration: result metadata", () => {
     expect(result.repository.root).toBe(repo.dir);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Semantic AST Conflict (calculateTotal demo scenario)
+// ---------------------------------------------------------------------------
+describe("Integration: AST Semantic conflict detection", () => {
+  it("detects semantic conflict when branch A changes function signature and branch B uses old signature", async () => {
+    repo = await createTestRepo("semantic-conflict-demo");
+
+    // 1. Base commit on main
+    await commitFile(
+      repo.dir,
+      "utils.js",
+      "function calculateTotal(price, tax) {\n  return price + tax;\n}\n",
+      "add calculateTotal on main"
+    );
+
+    // 2. Branch A changes signature to 3 arguments
+    await createBranch(repo.dir, "branch-a");
+    await commitFile(
+      repo.dir,
+      "utils.js",
+      "function calculateTotal(price, tax, discount) {\n  return price + tax - discount;\n}\n",
+      "change calculateTotal to accept discount on branch-a"
+    );
+    await switchBranch(repo.dir, "main");
+
+    // 3. Branch B adds checkout.js invoking calculateTotal with 2 arguments
+    await createBranch(repo.dir, "branch-b");
+    await commitFile(
+      repo.dir,
+      "checkout.js",
+      "const { calculateTotal } = require('./utils');\nconsole.log(calculateTotal(100, 10));\n",
+      "call calculateTotal with 2 args on branch-b"
+    );
+    await switchBranch(repo.dir, "main");
+
+    // 4. Run analyzeBranches
+    const result = await analyzeBranches({
+      repositoryPath: repo.dir,
+      branchA: "branch-a",
+      branchB: "branch-b",
+    });
+
+    expect(result.semanticConflicts).toBeDefined();
+    expect(result.semanticConflicts).toHaveLength(1);
+    expect(result.semanticConflicts![0].functionName).toBe("calculateTotal");
+    expect(result.semanticConflicts![0].oldParams).toEqual(["price", "tax"]);
+    expect(result.semanticConflicts![0].newParams).toEqual(["price", "tax", "discount"]);
+    expect(result.semanticConflicts![0].brokenCallSites).toHaveLength(1);
+    expect(result.semanticConflicts![0].brokenCallSites[0].callerFile).toBe("checkout.js");
+  });
+});
+

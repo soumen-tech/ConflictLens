@@ -11,13 +11,21 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "scan:security": "ts-node --project tsconfig.tsnode.json src/security/cli.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/server.js",
+    "dev:server": "ts-node --project tsconfig.tsnode.json src/server.ts"
   },
   "dependencies": {
+    "@codeguard/git-engine": "*",
     "@codeguard/shared": "*",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "simple-git": "^3.27.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^22.0.0",
     "@types/uuid": "^10.0.0",
     "@vitest/coverage-v8": "^2.0.0",

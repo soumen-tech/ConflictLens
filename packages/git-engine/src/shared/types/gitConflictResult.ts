@@ -111,6 +111,14 @@ export interface GitConflictResult {
   files: ChangedFile[];
   /** Files identified as conflict candidates */
   conflicts: ConflictCandidate[];
+  /** AST-based semantic conflicts (e.g. signature changes that break callers) */
+  semanticConflicts?: Array<{
+    functionName: string;
+    definitionFile: string;
+    oldParams: string[];
+    newParams: string[];
+    brokenCallSites: Array<{ callerFile: string; calledFunction: string; line: number }>;
+  }>;
   risk: RiskAssessment;
   metadata: {
     /** ISO 8601 timestamp */
