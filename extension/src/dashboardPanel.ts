@@ -87,6 +87,11 @@ export class DashboardPanel {
   }
 
   private async _handleWebviewMessage(msg: WebviewMessage): Promise<void> {
+    if (msg.type === 'scanNow') {
+      await vscode.commands.executeCommand('conflictlens.scanNow');
+      return;
+    }
+
     if (msg.type === 'openFile' && msg.file) {
       const folders = vscode.workspace.workspaceFolders;
       if (!folders || folders.length === 0) { return; }
