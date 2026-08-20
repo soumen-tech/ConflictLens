@@ -1,0 +1,17 @@
+{
+  "name": "codeguard",
+  "version": "1.0.0",
+  "description": "CodeGuard — AI-powered Git conflict & security intelligence platform",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "analyze": "node packages/git-engine/dist/cli.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
