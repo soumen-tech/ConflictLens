@@ -1,24 +1,37 @@
-# Dependencies
-node_modules/
+# OS & editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+*.suo
+*.user
 
-# Build output
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Node.js / Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+
+# Build outputs
 dist/
 out/
+extension/out/
+*.vsix
+extension/*.vsix
 
 # VS Code extension testing
 .vscode-test/
 
-# Environment variables
-.env
-.env.local
-
-# VS Code extension packages
-*.vsix
-
-# macOS
-.DS_Store
-
-# IDE
-.idea/
-*.swp
-*.swo
+# Spurious tsc output inside webview/src/ (generated before tsconfig fix)
+extension/webview/src/**/*.js
+extension/webview/src/**/*.js.map
+extension/webview/vite.config.js
+extension/webview/vite.config.js.map

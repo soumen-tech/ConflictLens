@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base resets ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0d0d14;
+  color: #e2e8f0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root { min-height: 100vh; }
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a2a3f; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #3f3f5a; }
+
+/* ── Custom component styles ─────────────────────────────────────────────── */
+@layer components {
+  .glass-card {
+    @apply bg-cl-surface border border-cl-border rounded-xl;
+    backdrop-filter: blur(12px);
+  }
+
+  .severity-pill {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide uppercase;
+  }
+
+  .file-link {
+    @apply font-mono text-cl-accent2 hover:text-white cursor-pointer transition-colors duration-150 hover:underline;
+  }
+
+  .section-label {
+    @apply text-xs font-semibold uppercase tracking-widest text-cl-muted mb-3;
+  }
+}
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.animate-fade-up {
+  animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.25s ease both;
+}
+
+/* Staggered list animation */
+.risk-list > *:nth-child(1)  { animation-delay: 0ms; }
+.risk-list > *:nth-child(2)  { animation-delay: 60ms; }
+.risk-list > *:nth-child(3)  { animation-delay: 120ms; }
+.risk-list > *:nth-child(4)  { animation-delay: 180ms; }
+.risk-list > *:nth-child(5)  { animation-delay: 240ms; }
+.risk-list > *:nth-child(n+6){ animation-delay: 300ms; }
+
+/* Severity glow rings */
+.glow-critical { box-shadow: 0 0 0 1px rgba(255,71,87,0.25),  0 4px 20px rgba(255,71,87,0.1); }
+.glow-high     { box-shadow: 0 0 0 1px rgba(255,99,72,0.25),  0 4px 20px rgba(255,99,72,0.1); }
+.glow-medium   { box-shadow: 0 0 0 1px rgba(255,165,2,0.2),   0 4px 20px rgba(255,165,2,0.07); }
+.glow-low      { box-shadow: 0 0 0 1px rgba(46,213,115,0.2),  0 4px 20px rgba(46,213,115,0.07); }
+
+/* Gradient border for header */
+.gradient-border-b {
+  border-bottom: 1px solid transparent;
+  background:
+    linear-gradient(#161622, #161622) padding-box,
+    linear-gradient(90deg, #7c5cbf 0%, #4f8ff7 100%) border-box;
+}
+
+/* AI explanation shimmer while loading */
+.ai-loading {
+  background: linear-gradient(90deg, #2a2a3f 25%, #3a3a5a 50%, #2a2a3f 75%);
+  background-size: 200% auto;
+  animation: shimmer 1.5s linear infinite;
+  border-radius: 4px;
+  height: 1em;
+}
+
+/* Health score ring */
+.health-ring {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
