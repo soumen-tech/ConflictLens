@@ -55,11 +55,11 @@ ConflictLens/
 
 | Track | Role | Branch |
 |-------|------|--------|
-| 1 | Git & Semantic/AST Analysis | `feature/semantic-analysis` |
+| 1 | Git & Semantic/AST Analysis | `git-semantic-analysis-engine` |
 | 2 | Security Scan + Risk Scoring | `feature/security-risk-engine` |
-| 3 | VS Code Extension + Diagnostics | `feature/vscode-extension` |
-| 4 | Backend API + AI Explanation | `feature/ai-explanation-layer` |
-| 5 | Dashboard (React) + Integration/QA | `feature/dashboard-integration` |
+| 3 | VS Code Extension + Diagnostics | `vscode-ai-dashboard` |
+| 4 | Backend API + AI Explanation | `vscode-ai-dashboard` |
+| 5 | Dashboard (React) + Integration/QA | `vscode-ai-dashboard` |
 
 ## Documentation
 
