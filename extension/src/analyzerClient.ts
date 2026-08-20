@@ -14,87 +14,14 @@
 
 import * as vscode from 'vscode';
 
-// ─── Canonical Internal Types (Architecture.md §3) ───────────────────────────
-// These are the shapes that diagnostics.ts consumes — do not change them
-// without also updating diagnostics.ts.
-
-export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
-export type RiskType  = 'semantic_conflict' | 'security_risk';
-
-export interface RiskLocation {
-  /** Workspace-relative path, e.g. "src/cart.js" */
-  file: string;
-  /** 1-indexed line number */
-  line: number;
-}
-
-export interface SemanticConflictDetails {
-  functionName: string;
-  changeType: string;
-  affectedFiles: string[];
-}
-
-export interface SecurityRiskDetails {
-  category: string;
-  redactedPreview?: string;
-}
-
-export interface AiContext {
-  explanation: string;
-  recommendation: string;
-}
-
-export interface Risk {
-  id: string;
-  type: RiskType;
-  riskLevel: RiskLevel;
-  location: RiskLocation;
-  details: SemanticConflictDetails | SecurityRiskDetails;
-  ai_context: AiContext;
-}
-
-export interface AnalysisResult {
-  analysis_id: string;
-  timestamp: string;
-  risks: Risk[];
-}
-
-// ─── Raw API Response Types ───────────────────────────────────────────────────
-// Two possible shapes come from the team's parallel development tracks.
-// normalizeApiResponse() maps both into AnalysisResult so diagnostics.ts
-// never has to care which format arrived.
-
-/**
- * Architecture.md §3 format — preferred, what we expect Members 1 & 2 to ship.
- * Identical to AnalysisResult; typed separately so the normalizer can discriminate.
- */
-interface ArchSchemaResponse {
-  analysis_id: string;
-  timestamp: string;
-  risks: Risk[];
-}
-
-/**
- * PRD §9 early-draft flat format — risks have a top-level `file` field
- * instead of a nested `location`, and `aiExplanation` instead of `ai_context`.
- * Support this defensively in case Members 1 & 2 followed the PRD draft rather
- * than Architecture.md. Delete once schemas are confirmed unified.
- */
-interface PrdFlatRisk {
-  id?: string;
-  type?: string;
-  file?: string;
-  riskLevel?: string;
-  line?: number;
-  details?: Record<string, unknown>;
-  aiExplanation?: string;
-}
-
-interface PrdFlatResponse {
-  risks: PrdFlatRisk[];
-}
-
-type RawApiResponse = ArchSchemaResponse | PrdFlatResponse | Record<string, unknown>;
+export {
+  Risk,
+  AnalysisResult,
+  RiskLevel,
+  RiskType,
+  SemanticConflictDetails,
+  SecurityRiskDetails,
+} from '@codeguard/shared';
 
 // ─── Custom Error Types ───────────────────────────────────────────────────────
 // Extension.ts catches these to show the right notification and decide
@@ -156,73 +83,7 @@ export function getMockResult(): AnalysisResult {
   return { ...BASE_MOCK, timestamp: new Date().toISOString() };
 }
 
-// ─── Schema Normalizer ────────────────────────────────────────────────────────
-
-/**
- * Maps whatever the real API returns into the canonical AnalysisResult shape.
- *
- * Handles:
- *   • Architecture.md §3 format (preferred)
- *   • PRD §9 flat format (defensive fallback)
- *
- * Throws ApiMalformedError if neither format can be detected.
- *
- * TODO: delete this function once Members 1 & 2 confirm they output
- *       Architecture.md format — at that point the cast on line ~220 is enough.
- */
-function normalizeApiResponse(raw: RawApiResponse): AnalysisResult {
-  if (!raw || typeof raw !== 'object') {
-    throw new ApiMalformedError('response was not a JSON object');
-  }
-
-  // ── Architecture.md §3 format ─────────────────────────────────────────────
-  // Detect by: has analysis_id AND risks[0] has a `location` sub-object.
-  if (
-    'analysis_id' in raw &&
-    Array.isArray((raw as ArchSchemaResponse).risks) &&
-    (
-      (raw as ArchSchemaResponse).risks.length === 0 ||
-      'location' in (raw as ArchSchemaResponse).risks[0]
-    )
-  ) {
-    return raw as AnalysisResult;
-  }
-
-  // ── PRD §9 flat format ────────────────────────────────────────────────────
-  // Detect by: has risks array, risks[0] has a top-level `file` field (not nested).
-  if ('risks' in raw && Array.isArray((raw as PrdFlatResponse).risks)) {
-    const prd = raw as PrdFlatResponse;
-    return {
-      analysis_id: `api_${Date.now()}`,
-      timestamp: new Date().toISOString(),
-      risks: prd.risks.map((r, i): Risk => {
-        const validTypes: RiskType[] = ['semantic_conflict', 'security_risk'];
-        const validLevels: RiskLevel[] = ['low', 'medium', 'high', 'critical'];
-
-        return {
-          id: r.id ?? `risk_${i}`,
-          type: validTypes.includes(r.type as RiskType)
-            ? (r.type as RiskType)
-            : 'semantic_conflict',
-          riskLevel: validLevels.includes(r.riskLevel as RiskLevel)
-            ? (r.riskLevel as RiskLevel)
-            : 'medium',
-          location: {
-            file: r.file ?? 'unknown',
-            line: r.line ?? ((r.details?.line as number | undefined) ?? 1),
-          },
-          details: (r.details ?? {}) as unknown as SemanticConflictDetails | SecurityRiskDetails,
-          ai_context: {
-            explanation:    r.aiExplanation ?? 'Pending AI response...',
-            recommendation: 'Pending AI response...',
-          },
-        };
-      }),
-    };
-  }
-
-  throw new ApiMalformedError('response matched neither Architecture.md nor PRD §9 schema');
-}
+// Schema Normalizer deleted as contracts are unified.
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
@@ -288,5 +149,5 @@ export async function analyzeProject(): Promise<AnalysisResult> {
     throw new ApiMalformedError(`HTTP ${response.status} — response body was not valid JSON`);
   }
 
-  return normalizeApiResponse(raw as RawApiResponse);
+  return raw as AnalysisResult;
 }

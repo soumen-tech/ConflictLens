@@ -26,6 +26,7 @@ import { scanForSecrets } from "./secretScanner";
 import { scanForInjections } from "./injectionScanner";
 import { riskEngine } from "./riskEngine";
 import { parseUnifiedDiff, fromParsedDiff } from "./diffParser";
+import type { Risk, RiskLevel as SharedRiskLevel } from "@codeguard/shared";
 
 // Re-export types for consumers
 export type {
@@ -46,6 +47,29 @@ export { scanForInjections } from "./injectionScanner";
 export { riskEngine } from "./riskEngine";
 export { parseUnifiedDiff, fromParsedDiff } from "./diffParser";
 export { shannonEntropy } from "./secretScanner";
+
+/**
+ * Adapter to map SecurityRisk[] to canonical Risk[] shape.
+ */
+export function adaptSecurityRisks(risks: SecurityRisk[]): Risk[] {
+  return risks.map((r) => ({
+    id: r.id,
+    type: "security_risk",
+    riskLevel: r.riskLevel as SharedRiskLevel,
+    location: {
+      file: r.file,
+      line: r.line ?? 1,
+    },
+    details: {
+      category: r.category,
+      redactedPreview: r.redactedPreview ?? undefined,
+    },
+    ai_context: {
+      explanation: "Pending AI response...",
+      recommendation: "Pending AI response...",
+    },
+  }));
+}
 
 /**
  * Analyze a diff for security risks.

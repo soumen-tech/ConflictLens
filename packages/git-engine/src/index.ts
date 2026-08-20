@@ -18,6 +18,7 @@ import { validateMergeConflicts, buildConflictCandidates } from "./core/conflict
 import { computeRiskScore } from "./core/risk/RiskScorer";
 import type { GitConflictResult } from "./shared/types/gitConflictResult";
 import { CodeGuardException } from "./core/git/GitErrors";
+import type { Risk, RiskLevel as SharedRiskLevel } from "@codeguard/shared";
 
 // Re-export the shared contract and error types for consumers
 export type {
@@ -33,6 +34,41 @@ export type {
   CodeGuardErrorCode,
 } from "./shared/types/gitConflictResult";
 export { CodeGuardException, makeError } from "./core/git/GitErrors";
+
+// ---------------------------------------------------------------------------
+// Adapter to canonical Risk shape
+// ---------------------------------------------------------------------------
+
+export function adaptGitConflictResult(result: GitConflictResult): Risk[] {
+  const risks: Risk[] = [];
+
+  for (const conflict of result.conflicts) {
+    const riskLevel: SharedRiskLevel = conflict.overlapLevel === "HIGH" ? "high"
+      : conflict.overlapLevel === "MEDIUM" ? "medium"
+      : "low";
+
+    risks.push({
+      id: `git_${conflict.file}_${conflict.overlapLevel}`,
+      type: "semantic_conflict",
+      riskLevel,
+      location: {
+        file: conflict.file,
+        line: conflict.overlappingRanges[0]?.rangeB?.startLine ?? 1,
+      },
+      details: {
+        functionName: "N/A (Line Overlap)",
+        changeType: conflict.hasActualConflict ? "git_merge_conflict" : "line_overlap",
+        affectedFiles: [conflict.file],
+      },
+      ai_context: {
+        explanation: "Pending AI response...",
+        recommendation: "Pending AI response...",
+      },
+    });
+  }
+
+  return risks;
+}
 
 // ---------------------------------------------------------------------------
 // Public API
