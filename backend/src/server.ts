@@ -8,14 +8,14 @@
  * Gemini AI stays client-side in the extension per geminiClient.ts design.
  */
 
-import express from "express";
+import express, { Express } from "express";
 import cors from "cors";
 import { analyzeBranches, adaptGitConflictResult } from "@conflictlens/git-engine";
 import { analyzeSecurityRisks, adaptSecurityRisks } from "./security/index";
 import type { AnalysisResult, Risk } from "@conflictlens/shared";
 import simpleGit from "simple-git";
 
-const app = express();
+const app: Express = express();
 app.use(cors());
 app.use(express.json());
 
@@ -80,7 +80,11 @@ app.get("/health", (_req, res) => {
 });
 
 const PORT = parseInt(process.env.PORT || "3000", 10);
-app.listen(PORT, () => {
-  console.log(`[ConflictLens] Integration server running on http://localhost:${PORT}`);
-  console.log(`[ConflictLens] POST /analyze to start analysis`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`[ConflictLens] Integration server running on http://localhost:${PORT}`);
+    console.log(`[ConflictLens] POST /analyze to start analysis`);
+  });
+}
+
+export default app;
