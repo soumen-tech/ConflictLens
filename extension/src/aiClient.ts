@@ -316,7 +316,7 @@ export async function enrichWithAI(
         ...risk,
         ai_context: {
           explanation:    proxyResult.explanation,
-          recommendation: risk.ai_context.recommendation, // Proxy returns one combined explanation; keep existing recommendation
+          recommendation: 'Follow the specific fix recommendation provided in the explanation above.',
         },
       };
     }
@@ -332,17 +332,45 @@ export async function enrichWithAI(
 
   // ── BYO-key path (Phase 3, unchanged) ──────────────────────────────────────
   if (!apiKey) {
-    if (!proxyUrl) {
-      console.log('[ConflictLens] Neither proxyUrl nor geminiApiKey set — skipping AI enrichment.');
-    }
-    return result;
+    // ── Fallback when AI enrichment is unavailable or fails ────────────────────
+    const fallbackMessage = !proxyUrl && !apiKey
+      ? 'AI enrichment skipped — configure conflictlens.proxyUrl or conflictlens.gemmaApiKey in settings.'
+      : 'AI explanation unavailable — check that local gemma-proxy is running on port 3001 or verify your API key.';
+
+    const fallbackRisks: Risk[] = result.risks.map((risk: Risk) => {
+      if (risk.ai_context.explanation.startsWith('Pending AI response')) {
+        return {
+          ...risk,
+          ai_context: {
+            explanation: fallbackMessage,
+            recommendation: 'Verify proxy server status or API key in ConflictLens settings.',
+          },
+        };
+      }
+      return risk;
+    });
+
+    return { ...result, risks: fallbackRisks };
   }
 
   console.log(`[ConflictLens] BYO-key path — calling Gemini directly (${modelId || 'gemma-4-26b-a4b-it'}).`);
   const enrichments = await callGeminiDirectly(result.risks, apiKey, timeout, modelId);
 
   if (enrichments.length === 0) {
-    return result;
+    const fallbackMessage = 'AI explanation unavailable — verify your API key in ConflictLens settings.';
+    const fallbackRisks: Risk[] = result.risks.map((risk: Risk) => {
+      if (risk.ai_context.explanation.startsWith('Pending AI response')) {
+        return {
+          ...risk,
+          ai_context: {
+            explanation: fallbackMessage,
+            recommendation: 'Check API key or network connection.',
+          },
+        };
+      }
+      return risk;
+    });
+    return { ...result, risks: fallbackRisks };
   }
 
   const enrichMap = new Map(enrichments.map((e) => [e.id, e]));
