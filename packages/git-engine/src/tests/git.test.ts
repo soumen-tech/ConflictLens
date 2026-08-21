@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file git.test.ts
  * Tests for core/git layer: repository detection, branch intelligence,
  * commit comparison, merge base. Uses real temporary Git repos.

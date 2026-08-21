@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file GitDiff.ts
  * Phase 5 — Git diff engine.
  *

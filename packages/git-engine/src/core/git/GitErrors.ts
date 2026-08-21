@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file GitErrors.ts
  * Typed error factory. Never throws raw Error objects — always use makeError().
  */

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file GitMergeBase.ts
  * Phase 4 — Common ancestor (merge base) resolution.
  *

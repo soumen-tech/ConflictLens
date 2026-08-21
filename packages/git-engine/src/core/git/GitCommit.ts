@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file GitCommit.ts
  * Phase 3 — Commit intelligence.
  *
