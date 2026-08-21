@@ -6,7 +6,7 @@
   "workspaces": [
     "packages/*",
     "backend",
-    "backend/gemini-proxy",
+    "backend/gemma-proxy",
     "extension",
     "extension/webview",
     "shared"

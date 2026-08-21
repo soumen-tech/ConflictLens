@@ -21,7 +21,7 @@ import {
   ApiMalformedError,
 } from './analyzerClient';
 import { applyDiagnostics, createDiagnosticCollection } from './diagnostics';
-import { enrichWithAI } from './geminiClient';
+import { enrichWithAI } from './aiClient';
 import { DashboardPanel } from './dashboardPanel';
 
 export function activate(context: vscode.ExtensionContext): void {

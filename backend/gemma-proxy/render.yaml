@@ -1,16 +1,16 @@
-# render.yaml — Render Infrastructure-as-Code for the ConflictLens Gemini Proxy
+# render.yaml — Render Infrastructure-as-Code for the ConflictLens Gemma Proxy
 #
 # Docs: https://render.com/docs/infrastructure-as-code
 #
-# IMPORTANT: Set GEMINI_API_KEY via the Render dashboard (Environment tab),
+# IMPORTANT: Set GEMMA_API_KEY via the Render dashboard (Environment tab),
 # NOT in this file. This file is committed to Git — never put secrets here.
 
 services:
   - type: web
-    name: conflictlens-gemini-proxy
+    name: conflictlens-gemma-proxy
     runtime: docker
-    dockerfilePath: ./backend/gemini-proxy/Dockerfile
-    dockerContext: ./backend/gemini-proxy
+    dockerfilePath: ./backend/gemma-proxy/Dockerfile
+    dockerContext: ./backend/gemma-proxy
     region: oregon  # Free tier available in: oregon, frankfurt
     plan: free      # Upgrade to "starter" ($7/mo) to eliminate cold starts
 
@@ -24,5 +24,5 @@ services:
       - key: FREE_SCAN_LIMIT
         value: "20"  # Adjust in the Render dashboard without redeploying
 
-      - key: GEMINI_API_KEY
+      - key: GEMMA_API_KEY
         sync: false  # sync:false = "secret" — set this in the Render dashboard

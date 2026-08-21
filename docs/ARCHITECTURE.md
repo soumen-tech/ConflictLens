@@ -1,4 +1,4 @@
-﻿# ConflictLens — System Architecture
+# ConflictLens — System Architecture
 
 This document describes the high-level system architecture, data flow, and components of ConflictLens.
 
@@ -44,7 +44,7 @@ graph TD
 4. **Impact Mapping**: The dependency graph builder maps imports and function references to identify calls to the modified functions in other parts of the repository (cross-file analysis).
 5. **Security Scanning**: A patterns/regex rules engine scans modified lines to detect secrets (API keys, credentials) and unsafe execution patterns (eval, SQL injection, unsanitized commands).
 6. **Risk Aggregation**: The scoring engine evaluates findings from the Semantic Analyzer and Security Scanner to grade issues (Low, Medium, High, Critical).
-7. **AI Enrichment**: The structured JSON payload is formatted into a prompt and sent to the Gemini API (`gemini-2.5-flash`). Gemini generates a concise explanation of the risk and actionable remediation instructions.
+7. **AI Enrichment**: The structured JSON payload is formatted into a prompt and sent to the Gemini API using Gemma 4 (`gemma-4-26b-a4b-it`). Gemma 4 generates a concise explanation of the risk and actionable remediation instructions.
 8. **UI Presentation**: The structured JSON response, now enriched with AI recommendations, is returned to the VS Code extension which highlights lines inline via the Diagnostics API and displays a full summary inside the React webview dashboard.
 
 ## 4. Subsystem Components
@@ -65,4 +65,4 @@ graph TD
 
 - **Client Wrapper**: Integrates the `@google/generative-ai` SDK.
 - **Context Optimizer**: Redacts/masks secrets before sending snippets to the Gemini API to prevent data leaks.
-- **Prompt Architect**: Combines system architecture metadata and changes to format a clean query context for `gemini-2.5-flash`.
+- **Prompt Architect**: Combines system architecture metadata and changes to format a clean query context for Gemma 4 (`gemma-4-26b-a4b-it`).

@@ -1,4 +1,4 @@
-﻿# ConflictLens — Technology Stack
+# ConflictLens — Technology Stack
 
 This document details the software development technologies, frameworks, and libraries selected to build ConflictLens. The stack prioritizes open-source tools and free-tier services to ensure zero hosting/operating costs for development and demo environments.
 
@@ -32,7 +32,7 @@ This document details the software development technologies, frameworks, and lib
 ## 4. AI Explanation & Remediation Layer
 
 - **AI Provider**: Google Gemini API (Free Tier)
-- **Model**: `gemini-2.5-flash`
+- **Model**: Gemma 4 (`gemma-4-26b-a4b-it`)
   - _Why_: Offers a generous free tier (with high rate limits suitable for development), low latency, and excellent capability at explaining code structures and recommending secure code changes.
 - **SDK**: `@google/generative-ai`
   - _Why_: The official client SDK to interact with Google's generative models securely.

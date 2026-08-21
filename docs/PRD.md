@@ -1,4 +1,4 @@
-﻿# Product Requirements Document (PRD)
+# Product Requirements Document (PRD)
 
 ## ConflictLens — AI-Powered Git Conflict & Security Intelligence Platform
 
@@ -133,7 +133,7 @@ VS Code Warning + Dashboard Display
 3. The system **must** build a lightweight dependency graph (function → callers, file → imports) for the affected repo.
 4. The system **must** scan changed lines for security-sensitive patterns (hardcoded secrets, injection-prone constructs).
 5. The system **must** assign a risk level (Low/Medium/High/Critical) based on a rules-based scoring model.
-6. The system **must** send structured risk findings to the Gemini API (using the free `gemini-2.5-flash` model) and receive a natural-language explanation + recommendation.
+6. The system **must** send structured risk findings to the Gemini API (using the Gemma 4 model, `gemma-4-26b-a4b-it`) and receive a natural-language explanation + recommendation.
 7. The system **must** display warnings inline in VS Code (e.g., via Diagnostics API / decorations) and in a dashboard webview.
 8. The system **should** allow a manual "Scan Now" command in addition to auto-trigger on save/commit.
 

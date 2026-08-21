@@ -1,17 +1,17 @@
-# ConflictLens — Gemini Proxy Server
+# ConflictLens — Gemma Proxy Server
 
-A minimal Express server that holds the Gemini API key server-side and serves AI conflict explanations to ConflictLens extension users. Each anonymous device ID gets a configurable free-scan allowance (default: 20 scans) before being prompted to supply their own key.
+A minimal Express server that holds the API key server-side and serves AI conflict explanations using Gemma 4 to ConflictLens extension users. Each anonymous device ID gets a configurable free-scan allowance (default: 20 scans) before being prompted to supply their own key.
 
 ## How it works
 
 ```
-Extension ──POST /api/explain──▶ Proxy ──▶ Gemini API
+Extension ──POST /api/explain──▶ Proxy ──▶ Gemma AI API
           ◀── { explanation } ──          (key never leaves server)
 ```
 
 1. The extension sends `{ deviceId, risk }` — `deviceId` is a random UUID generated once per install, stored in VS Code's `globalState`. It contains no personal data.
-2. The proxy checks the per-device scan count (in-memory). If the limit is reached, it returns HTTP 429 without calling Gemini.
-3. On success, the proxy calls `gemini-2.5-flash`, returns `{ explanation, remainingFreeScans }`.
+2. The proxy checks the per-device scan count (in-memory). If the limit is reached, it returns HTTP 429 without calling the AI API.
+3. On success, the proxy calls Gemma 4 (`gemma-4-26b-a4b-it`), returns `{ explanation, remainingFreeScans }`.
 
 ---
 
@@ -20,19 +20,19 @@ Extension ──POST /api/explain──▶ Proxy ──▶ Gemini API
 ### Prerequisites
 
 - Node.js ≥ 20
-- A Gemini API key — get one free at [aistudio.google.com](https://aistudio.google.com/app/apikey)
+- An API key (Gemini / Gemma API key) — get one free at [aistudio.google.com](https://aistudio.google.com/app/apikey)
 
 ### Setup
 
 ```bash
-cd backend/gemini-proxy
+cd backend/gemma-proxy
 
 # Install dependencies
 npm install
 
 # Create your local .env from the template
 cp .env.example .env
-# Then edit .env and paste in your GEMINI_API_KEY
+# Then edit .env and paste in your GEMMA_API_KEY
 ```
 
 ### Run
@@ -84,7 +84,8 @@ Expected success response:
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
-| `GEMINI_API_KEY` | ✅ Yes | — | Gemini API key. Never hardcoded, never returned to clients. |
+| `GEMMA_API_KEY` | ✅ Yes | — | API key for Gemma 4. Never hardcoded, never returned to clients. |
+| `AI_MODEL_ID` | No | `gemma-4-26b-a4b-it` | Model ID for Gemma 4 (Alternatives: `gemma-4-31b-it`, `gemma-4-4b-it`). |
 | `PORT` | No | `3001` | Port the server listens on. |
 | `FREE_SCAN_LIMIT` | No | `20` | Max free scans per `deviceId`. Adjust without code changes. |
 
@@ -127,11 +128,11 @@ We use [Render](https://render.com) (free tier) because:
    - Render will auto-detect `render.yaml` — confirm the settings
 
 3. **Set environment variables** in the Render dashboard (not in any committed file):
-   - `GEMINI_API_KEY` → paste your key
+   - `GEMMA_API_KEY` → paste your key
    - `FREE_SCAN_LIMIT` → e.g. `20` (or leave unset to use the default)
    - `PORT` → Render sets this automatically; you don't need to set it manually
 
-4. **Deploy** — Render builds from `backend/gemini-proxy/` using the `Dockerfile`.
+4. **Deploy** — Render builds from `backend/gemma-proxy/` using the `Dockerfile`.
 
 5. **Copy the service URL** (e.g. `https://conflictlens-proxy.onrender.com`) and paste it into VS Code:
    ```

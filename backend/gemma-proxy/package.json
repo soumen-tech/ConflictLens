@@ -1,7 +1,7 @@
 {
-  "name": "@conflictlens/gemini-proxy",
+  "name": "@conflictlens/gemma-proxy",
   "version": "1.0.0",
-  "description": "ConflictLens hosted Gemini proxy — serves AI explanations with per-device free-scan allowance.",
+  "description": "ConflictLens hosted Gemma proxy — serves AI explanations with per-device free-scan allowance.",
   "private": true,
   "main": "dist/server.js",
   "scripts": {

@@ -4,13 +4,11 @@
   "description": "AI-powered semantic conflict and security risk detection — flags issues before merge.",
   "version": "0.0.1",
   "publisher": "ctrl-future",
- integration
   "repository": {
     "type": "git",
     "url": "https://github.com/soumen-tech/ConflictLens"
   },
   "license": "MIT",
- main
   "icon": "media/icon.png",
   "engines": {
     "vscode": "^1.85.0"
@@ -54,15 +52,25 @@
           "default": 8000,
           "description": "Maximum time (ms) to wait for the local analysis API or Gemini before treating the request as timed out. Default 8000ms matches the PRD's ~5–10 s performance target."
         },
+        "conflictlens.aiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your AI API key (Gemini API key). Used with Gemma 4 (gemma-4-26b-a4b-it) to generate plain-English explanations and recommendations for each detected risk. Leave empty to skip AI enrichment."
+        },
         "conflictlens.geminiApiKey": {
           "type": "string",
           "default": "",
-          "description": "Your Gemini API key (gemini-2.5-flash). Used to generate plain-English explanations and recommendations for each detected risk. Leave empty to skip AI enrichment."
+          "description": "Alias for conflictlens.aiApiKey (for backward compatibility)."
         },
         "conflictlens.proxyUrl": {
           "type": "string",
           "default": "",
-          "description": "URL of the ConflictLens hosted Gemini proxy (e.g. https://your-proxy.onrender.com). When set, AI explanations are served from the proxy and count against the free-scan allowance. Leave empty to use your own Gemini API key directly (Phase 3 behaviour unchanged)."
+          "description": "URL of the ConflictLens hosted AI proxy (e.g. https://your-proxy.onrender.com). When set, AI explanations are served from the proxy and count against the free-scan allowance. Leave empty to use your own AI API key directly."
+        },
+        "conflictlens.modelId": {
+          "type": "string",
+          "default": "gemma-4-26b-a4b-it",
+          "description": "Model ID used for direct AI calls. Default: gemma-4-26b-a4b-it. Alternatives: gemma-4-31b-it (stronger reasoning), gemma-4-4b-it (lower latency)."
         }
       }
     }

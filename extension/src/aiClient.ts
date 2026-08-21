@@ -212,9 +212,11 @@ async function callGeminiDirectly(
   risks: Risk[],
   apiKey: string,
   timeout: number,
+  modelId: string = 'gemma-4-26b-a4b-it',
 ): Promise<AiEnrichment[]> {
+  const effectiveModel = modelId.trim() || 'gemma-4-26b-a4b-it';
   const endpoint =
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    `https://generativelanguage.googleapis.com/v1beta/models/${effectiveModel}:generateContent?key=${apiKey}`;
 
   const body: GeminiRequest = {
     contents: [{ parts: [{ text: buildBatchPrompt(risks) }] }],
@@ -286,8 +288,11 @@ export async function enrichWithAI(
 
   const config   = vscode.workspace.getConfiguration();
   const proxyUrl = config.get<string>('conflictlens.proxyUrl', '').trim();
-  const apiKey   = config.get<string>('conflictlens.geminiApiKey', '').trim();
+  const apiKey   = (config.get<string>('conflictlens.gemmaApiKey', '').trim()) ||
+                   (config.get<string>('conflictlens.aiApiKey', '').trim()) ||
+                   (config.get<string>('conflictlens.geminiApiKey', '').trim());
   const timeout  = config.get<number>('conflictlens.apiTimeoutMs', 8000);
+  const modelId  = config.get<string>('conflictlens.modelId', 'gemma-4-26b-a4b-it').trim();
 
   // ── Proxy path ─────────────────────────────────────────────────────────────
   if (proxyUrl) {
@@ -333,8 +338,8 @@ export async function enrichWithAI(
     return result;
   }
 
-  console.log('[ConflictLens] BYO-key path — calling Gemini directly.');
-  const enrichments = await callGeminiDirectly(result.risks, apiKey, timeout);
+  console.log(`[ConflictLens] BYO-key path — calling Gemini directly (${modelId || 'gemma-4-26b-a4b-it'}).`);
+  const enrichments = await callGeminiDirectly(result.risks, apiKey, timeout, modelId);
 
   if (enrichments.length === 0) {
     return result;
