@@ -33,6 +33,8 @@ function mapSeverity(riskLevel: RiskLevel): vscode.DiagnosticSeverity {
       return vscode.DiagnosticSeverity.Warning;
     case 'low':
       return vscode.DiagnosticSeverity.Information;
+    default:
+      return vscode.DiagnosticSeverity.Information;
   }
 }
 

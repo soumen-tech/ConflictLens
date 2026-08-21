@@ -177,7 +177,7 @@ export async function enrichWithAI(result: AnalysisResult): Promise<AnalysisResu
   // Build a lookup map for O(1) matching
   const enrichMap = new Map(enrichments.map((e) => [e.id, e]));
 
-  const enrichedRisks: Risk[] = result.risks.map((risk) => {
+  const enrichedRisks: Risk[] = result.risks.map((risk: Risk) => {
     const enrichment = enrichMap.get(risk.id);
     if (!enrichment) { return risk; }
 
