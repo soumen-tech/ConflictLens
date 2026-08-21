@@ -1,20 +1,32 @@
 /**
  * geminiClient.ts
  *
- * Enriches an AnalysisResult by calling the Gemini AI API for each risk.
- * All risks are sent in a single batched request for efficiency.
+ * Enriches an AnalysisResult by generating AI explanations for each risk.
  *
- * Phase 3: reads `conflictlens.geminiApiKey` from VS Code settings.
- *   • Key set   → calls gemini-2.5-flash, fills in ai_context per risk.
- *   • Key unset → returns the result unchanged ("Pending AI response..." stays).
+ * Phase 3: reads `conflictlens.geminiApiKey` from VS Code settings and calls
+ *   Gemini directly (all risks batched in one request).
  *
- * No VS Code UI code here — this file is pure data transformation.
+ * Phase 4: proxy-first call flow —
+ *   1. If `conflictlens.proxyUrl` is set:
+ *      → call POST {proxyUrl}/api/explain once per risk (no key on the client)
+ *      → on 429 (limit reached): show friendly message, fall back to BYO-key path
+ *      → on other proxy failure:  fall back to BYO-key path silently (logged only)
+ *   2. If proxy is empty/unset, or proxy fallback triggered:
+ *      → use existing BYO-key path (batched Gemini call) — Phase 3 unchanged
+ *   3. If neither proxy nor BYO-key is available: return result unchanged
+ *      ("Pending AI response..." stays) — identical to Phase 3 no-key behaviour.
+ *
+ * No VS Code UI code here — this file is pure data transformation, except for
+ * the one informational message shown when the free limit is reached.
+ *
+ * Requires `context: vscode.ExtensionContext` so it can read/write `globalState`
+ * for the persistent anonymous deviceId.
  */
 
 import * as vscode from 'vscode';
 import { AnalysisResult, Risk } from './analyzerClient';
 
-// ─── Gemini REST API types ────────────────────────────────────────────────────
+// ─── Gemini REST API types (BYO-key direct path) ─────────────────────────────
 
 interface GeminiPart {
   text: string;
@@ -37,9 +49,109 @@ interface AiEnrichment {
   recommendation: string;
 }
 
-// ─── Prompt builder ───────────────────────────────────────────────────────────
+// ─── Proxy response shapes ────────────────────────────────────────────────────
 
-function buildPrompt(risks: Risk[]): string {
+interface ProxySuccessResponse {
+  explanation: string;
+  remainingFreeScans: number;
+}
+
+interface ProxyErrorResponse {
+  error: string;
+  message: string;
+  remainingFreeScans?: number;
+}
+
+// ─── Device ID ────────────────────────────────────────────────────────────────
+
+const DEVICE_ID_KEY = 'conflictlens.deviceId';
+
+/**
+ * Returns the persistent anonymous device ID for this VS Code install.
+ * Created once with crypto.randomUUID() and stored in globalState so it
+ * survives extension restarts without being tied to any personal data.
+ */
+function getOrCreateDeviceId(context: vscode.ExtensionContext): string {
+  const existing = context.globalState.get<string>(DEVICE_ID_KEY);
+  if (existing) { return existing; }
+
+  const newId = crypto.randomUUID();
+  void context.globalState.update(DEVICE_ID_KEY, newId);
+  console.log(`[ConflictLens] Generated new anonymous deviceId: ${newId}`);
+  return newId;
+}
+
+// ─── Proxy path (per-risk) ────────────────────────────────────────────────────
+
+/**
+ * Calls the hosted proxy for a single risk.
+ *
+ * Returns:
+ *   { explanation: string }  on success
+ *   null                     on any failure (caller falls back to BYO-key)
+ *
+ * Side-effects:
+ *   Shows a VS Code information message if the free limit is reached (429).
+ */
+async function callViaProxy(
+  risk: Risk,
+  deviceId: string,
+  proxyUrl: string,
+  timeout: number,
+): Promise<{ explanation: string } | null> {
+  const endpoint = `${proxyUrl.replace(/\/$/, '')}/api/explain`;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceId, risk }),
+      signal: controller.signal,
+    });
+
+    if (response.status === 429) {
+      const body = await response.json().catch(() => ({} as ProxyErrorResponse));
+      const msg = (body as ProxyErrorResponse).message
+        ?? 'Free AI explanations used up — add your own Gemini API key in ConflictLens settings for unlimited scans.';
+
+      // Show the message once (VS Code deduplicates identical messages automatically)
+      void vscode.window.showInformationMessage(`ConflictLens: ${msg}`);
+      return null; // Trigger BYO-key fallback
+    }
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => '');
+      console.warn(`[ConflictLens] Proxy error HTTP ${response.status}:`, text);
+      return null; // Trigger BYO-key fallback silently
+    }
+
+    const body = await response.json() as ProxySuccessResponse;
+    if (!body.explanation) {
+      console.warn('[ConflictLens] Proxy returned empty explanation.');
+      return null;
+    }
+
+    return { explanation: body.explanation };
+
+  } catch (err) {
+    const isTimeout = err instanceof Error && err.name === 'AbortError';
+    console.warn(
+      isTimeout
+        ? '[ConflictLens] Proxy request timed out — falling back to BYO-key path.'
+        : '[ConflictLens] Proxy request failed — falling back to BYO-key path:', err
+    );
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// ─── BYO-key path (batched) ───────────────────────────────────────────────────
+
+function buildBatchPrompt(risks: Risk[]): string {
   const riskSummaries = risks.map((r) => ({
     id: r.id,
     type: r.type,
@@ -70,10 +182,7 @@ Respond ONLY as a valid JSON array — no markdown, no extra text:
 ]`;
 }
 
-// ─── Response parser ──────────────────────────────────────────────────────────
-
-function parseGeminiResponse(raw: string): AiEnrichment[] {
-  // Strip any accidental markdown fences Gemini may have added
+function parseBatchResponse(raw: string): AiEnrichment[] {
   const cleaned = raw
     .replace(/^```(?:json)?\s*/i, '')
     .replace(/\s*```\s*$/, '')
@@ -95,39 +204,20 @@ function parseGeminiResponse(raw: string): AiEnrichment[] {
   });
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
-
 /**
- * Enriches each risk in the AnalysisResult with a Gemini-generated explanation
- * and recommendation. Returns a new AnalysisResult (original is not mutated).
- *
- * Graceful degradation:
- *   • No API key         → returns result unchanged (no API call).
- *   • Gemini unreachable → logs warning, returns result unchanged.
- *   • Bad JSON response  → logs warning, returns result unchanged.
- *
- * This means the extension never crashes on Gemini failure — the worst outcome
- * is diagnostics staying with "Pending AI response..." placeholder text.
+ * Calls Gemini directly with the user's own API key — all risks batched.
+ * Phase 3 behaviour, unchanged. Returns enrichments or empty array on failure.
  */
-export async function enrichWithAI(result: AnalysisResult): Promise<AnalysisResult> {
-  const config  = vscode.workspace.getConfiguration();
-  const apiKey  = config.get<string>('conflictlens.geminiApiKey', '').trim();
-  const timeout = config.get<number>('conflictlens.apiTimeoutMs', 8000);
-
-  if (!apiKey) {
-    console.log('[ConflictLens] geminiApiKey not set — skipping AI enrichment.');
-    return result;
-  }
-
-  if (result.risks.length === 0) {
-    return result; // Nothing to enrich.
-  }
-
+async function callGeminiDirectly(
+  risks: Risk[],
+  apiKey: string,
+  timeout: number,
+): Promise<AiEnrichment[]> {
   const endpoint =
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
   const body: GeminiRequest = {
-    contents: [{ parts: [{ text: buildPrompt(result.risks) }] }],
+    contents: [{ parts: [{ text: buildBatchPrompt(risks) }] }],
     generationConfig: { responseMimeType: 'application/json' },
   };
 
@@ -146,11 +236,10 @@ export async function enrichWithAI(result: AnalysisResult): Promise<AnalysisResu
     if (!response.ok) {
       const errText = await response.text().catch(() => '');
       console.warn(`[ConflictLens] Gemini API error HTTP ${response.status}:`, errText);
-      return result;
+      return [];
     }
 
     const json = (await response.json()) as Record<string, unknown>;
-    // Gemini wraps the content in candidates[0].content.parts[0].text
     const candidates = json.candidates as Array<{ content: { parts: Array<{ text: string }> } }>;
     raw = candidates?.[0]?.content?.parts?.[0]?.text ?? '';
   } catch (err) {
@@ -160,21 +249,97 @@ export async function enrichWithAI(result: AnalysisResult): Promise<AnalysisResu
         ? '[ConflictLens] Gemini request timed out — AI enrichment skipped.'
         : '[ConflictLens] Gemini request failed:', err
     );
-    return result;
+    return [];
   } finally {
     clearTimeout(timer);
   }
 
-  // Parse and apply enrichments
-  let enrichments: AiEnrichment[];
   try {
-    enrichments = parseGeminiResponse(raw);
+    return parseBatchResponse(raw);
   } catch (err) {
     console.warn('[ConflictLens] Could not parse Gemini response:', err, '\nRaw:', raw);
+    return [];
+  }
+}
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+
+/**
+ * Enriches each risk in the AnalysisResult with AI-generated explanation text.
+ * Returns a new AnalysisResult (original is not mutated).
+ *
+ * Call flow (Phase 4):
+ *   proxyUrl set   → try proxy per-risk → on failure/limit, fall back to BYO-key
+ *   proxyUrl empty → BYO-key direct call (Phase 3, unchanged)
+ *   neither set    → return result unchanged ("Pending AI response..." stays)
+ *
+ * This function never throws — the worst outcome is the result being returned
+ * as-is with placeholder AI text.
+ */
+export async function enrichWithAI(
+  result: AnalysisResult,
+  context: vscode.ExtensionContext,
+): Promise<AnalysisResult> {
+  if (result.risks.length === 0) {
     return result;
   }
 
-  // Build a lookup map for O(1) matching
+  const config   = vscode.workspace.getConfiguration();
+  const proxyUrl = config.get<string>('conflictlens.proxyUrl', '').trim();
+  const apiKey   = config.get<string>('conflictlens.geminiApiKey', '').trim();
+  const timeout  = config.get<number>('conflictlens.apiTimeoutMs', 8000);
+
+  // ── Proxy path ─────────────────────────────────────────────────────────────
+  if (proxyUrl) {
+    const deviceId = getOrCreateDeviceId(context);
+    console.log(`[ConflictLens] Proxy path — deviceId: ${deviceId}, url: ${proxyUrl}`);
+
+    let proxyFailed = false;
+    const enrichedRisks: Risk[] = [...result.risks];
+
+    for (let i = 0; i < result.risks.length; i++) {
+      const risk = result.risks[i];
+      const proxyResult = await callViaProxy(risk, deviceId, proxyUrl, timeout);
+
+      if (proxyResult === null) {
+        // Proxy failed or limit reached — break and fall through to BYO-key
+        proxyFailed = true;
+        break;
+      }
+
+      enrichedRisks[i] = {
+        ...risk,
+        ai_context: {
+          explanation:    proxyResult.explanation,
+          recommendation: risk.ai_context.recommendation, // Proxy returns one combined explanation; keep existing recommendation
+        },
+      };
+    }
+
+    // If proxy succeeded for all risks, return enriched result
+    if (!proxyFailed) {
+      return { ...result, risks: enrichedRisks };
+    }
+
+    // Proxy path failed — fall through to BYO-key below
+    console.log('[ConflictLens] Proxy path failed — attempting BYO-key fallback.');
+  }
+
+  // ── BYO-key path (Phase 3, unchanged) ──────────────────────────────────────
+  if (!apiKey) {
+    if (!proxyUrl) {
+      console.log('[ConflictLens] Neither proxyUrl nor geminiApiKey set — skipping AI enrichment.');
+    }
+    return result;
+  }
+
+  console.log('[ConflictLens] BYO-key path — calling Gemini directly.');
+  const enrichments = await callGeminiDirectly(result.risks, apiKey, timeout);
+
+  if (enrichments.length === 0) {
+    return result;
+  }
+
   const enrichMap = new Map(enrichments.map((e) => [e.id, e]));
 
   const enrichedRisks: Risk[] = result.risks.map((risk: Risk) => {

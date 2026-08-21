@@ -7,9 +7,9 @@
  *   3. Wire up the file-save listener with debounce.
  *   4. Push everything into context.subscriptions for cleanup.
  *
- * Phase 3 additions:
- *   • After each scan, enrichWithAI() is called — diagnostics appear instantly,
- *     then update again once Gemini responds (~2-5 s).
+ * Phase 4 additions:
+ *   • After each scan, enrichWithAI() is called — tries proxy first (if configured),
+ *     falls back to BYO Gemini key (Phase 3 path), then no-ops gracefully.
  *   • Dashboard panel is opened automatically on first successful scan.
  */
 
@@ -25,7 +25,7 @@ import { enrichWithAI } from './geminiClient';
 import { DashboardPanel } from './dashboardPanel';
 
 export function activate(context: vscode.ExtensionContext): void {
-  console.log('[ConflictLens] Extension activated (Phase 3).');
+  console.log('[ConflictLens] Extension activated (Phase 4).');
 
   const diagnosticCollection = createDiagnosticCollection();
   context.subscriptions.push(diagnosticCollection);
@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const scanCommand = vscode.commands.registerCommand(
     'conflictlens.scanNow',
     async () => {
-      await runScan(diagnosticCollection, context.extensionUri);
+      await runScan(diagnosticCollection, context.extensionUri, context);
     }
   );
   context.subscriptions.push(scanCommand);
@@ -60,7 +60,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     debounceTimer = setTimeout(async () => {
       debounceTimer = undefined;
-      await runScan(diagnosticCollection, context.extensionUri);
+      await runScan(diagnosticCollection, context.extensionUri, context);
     }, DEBOUNCE_MS);
   });
   context.subscriptions.push(saveListener);
@@ -82,7 +82,8 @@ export function activate(context: vscode.ExtensionContext): void {
  */
 async function runScan(
   diagnosticCollection: vscode.DiagnosticCollection,
-  extensionUri: vscode.Uri
+  extensionUri: vscode.Uri,
+  context: vscode.ExtensionContext,
 ): Promise<void> {
   try {
     // ── Step 1–3: Analysis + immediate display ─────────────────────────────
@@ -104,7 +105,7 @@ async function runScan(
 
     // ── Step 4–6: AI enrichment (non-blocking for the notification) ─────────
     // enrichWithAI gracefully no-ops if the key is missing or Gemini fails.
-    const enrichedResult = await enrichWithAI(rawResult);
+    const enrichedResult = await enrichWithAI(rawResult, context);
     await applyDiagnostics(diagnosticCollection, enrichedResult);
     DashboardPanel.update(enrichedResult);
 

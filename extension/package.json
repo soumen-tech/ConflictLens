@@ -56,6 +56,11 @@
           "type": "string",
           "default": "",
           "description": "Your Gemini API key (gemini-2.5-flash). Used to generate plain-English explanations and recommendations for each detected risk. Leave empty to skip AI enrichment."
+        },
+        "conflictlens.proxyUrl": {
+          "type": "string",
+          "default": "",
+          "description": "URL of the ConflictLens hosted Gemini proxy (e.g. https://your-proxy.onrender.com). When set, AI explanations are served from the proxy and count against the free-scan allowance. Leave empty to use your own Gemini API key directly (Phase 3 behaviour unchanged)."
         }
       }
     }
