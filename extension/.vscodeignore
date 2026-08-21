@@ -16,7 +16,10 @@ tsconfig.json
 .eslintrc*
 .prettierrc*
 
-# Dev/test files
+# Parent repository folders & tests
+../*
+../**
+**/__tests__/**
 **/*.test.ts
 **/*.spec.ts
 smoke-test.js

@@ -39,13 +39,13 @@
       "properties": {
         "conflictlens.autoScan": {
           "type": "boolean",
-          "default": false,
-          "description": "When true, ConflictLens will automatically scan for risks every time a file is saved (debounced, 2 s). Defaults to false to avoid notification noise."
+          "default": true,
+          "description": "When true, ConflictLens will automatically scan for risks every time a file is saved (debounced, 2 s)."
         },
         "conflictlens.apiEndpoint": {
           "type": "string",
-          "default": "http://localhost:3000/analyze",
-          "description": "URL of the local ConflictLens analysis server (Members 1 & 2). Example: http://localhost:3000/analyze. Leave empty to use built-in mock data for offline / UI development."
+          "default": "",
+          "description": "URL of the local ConflictLens analysis server. Leave empty to use built-in analysis / mock data."
         },
         "conflictlens.apiTimeoutMs": {
           "type": "number",
