@@ -13,7 +13,7 @@
     "esModuleInterop": true,
     "baseUrl": "..",
     "paths": {
-      "@codeguard/shared": [
+      "@conflictlens/shared": [
         "shared/src/index.ts"
       ]
     }

@@ -66,7 +66,8 @@
     "compile:webview": "npm run build --workspace=conflictlens-dashboard",
     "compile": "npm run compile:webview && npm run compile:ext",
     "build": "npm run compile",
-    "test": "node smoke-test.js",
+    "test": "vitest run",
+    "test:smoke": "node smoke-test.js",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts"
   },
@@ -74,8 +75,9 @@
     "@conflictlens/shared": "*"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
     "@types/node": "^20.0.0",
-    "typescript": "^5.3.0"
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0",
+    "vitest": "^2.1.9"
   }
 }
