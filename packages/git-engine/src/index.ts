@@ -15,6 +15,7 @@ import { compareBranches } from "./core/git/GitCommit";
 import { getDiffFromMergeBase, mergeDiffResults } from "./core/git/GitDiff";
 import { parseDiffOutput } from "./core/conflict/DiffRangeParser";
 import { validateMergeConflicts, buildConflictCandidates } from "./core/conflict/ConflictDetector";
+export type { PredictedConflictResult } from "./core/conflict/ConflictDetector";
 import { computeRiskScore } from "./core/risk/RiskScorer";
 import { detectSemanticConflicts, semanticConflictsToRisks } from "./core/semantic/SemanticAnalyzer";
 import type { GitConflictResult } from "./shared/types/gitConflictResult";
@@ -35,6 +36,9 @@ export type {
   ConflictLensErrorCode,
 } from "./shared/types/gitConflictResult";
 export { ConflictLensException, makeError } from "./core/git/GitErrors";
+export { getCurrentBranch, listLocalBranches, listRemoteBranches } from "./core/git/GitBranch";
+export { getBranchFileChanges } from "./core/git/GitDiff";
+export { predictConflicts } from "./core/conflict/ConflictDetector";
 
 // ---------------------------------------------------------------------------
 // Adapter to canonical Risk shape

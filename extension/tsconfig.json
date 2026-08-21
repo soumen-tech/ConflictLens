@@ -18,6 +18,9 @@
       ],
       "@codeguard/shared": [
         "shared/src/index.ts"
+      ],
+      "@conflictlens/git-engine": [
+        "packages/git-engine/src/index.ts"
       ]
     }
   },

@@ -15,6 +15,8 @@ import type { SimpleGit } from "simple-git";
 import { throwError } from "./GitErrors";
 import { parseDiffOutput } from "../conflict/DiffRangeParser";
 import type { ChangedFile } from "../../shared/types/gitConflictResult";
+import { resolveBranchRef } from "./GitBranch";
+import { getMergeBase } from "./GitMergeBase";
 
 export interface BranchDiffResult {
   /** Files changed on this branch relative to the merge base */
@@ -193,4 +195,24 @@ function getRangesFromDiff(
 ) {
   const rangesByFile = parseDiffOutput(rawDiff);
   return rangesByFile.get(filePath) ?? [];
+}
+
+/**
+ * Detect which files are touched on a branch compared to its common ancestor with main.
+ * Supports local and remote branches.
+ */
+export async function getBranchFileChanges(
+  git: SimpleGit,
+  branchName: string
+): Promise<string[]> {
+  try {
+    const resolvedBranch = await resolveBranchRef(git, branchName);
+    const resolvedMain = await resolveBranchRef(git, "main");
+    const mergeBase = await getMergeBase(git, resolvedMain.shortName, resolvedBranch.shortName);
+    const diffResult = await getDiffFromMergeBase(git, mergeBase, resolvedBranch.shortName);
+    return diffResult.files.map((f) => f.path);
+  } catch (err) {
+    if ((err as { ConflictLensError?: unknown }).ConflictLensError) throw err;
+    throwError("GIT_COMMAND_FAILURE", `Failed to scan branch file changes for "${branchName}"`, err);
+  }
 }

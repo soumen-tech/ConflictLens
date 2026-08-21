@@ -28,6 +28,10 @@ import type { SimpleGit } from "simple-git";
 import type { ConflictCandidate, ChangedFile } from "../../shared/types/gitConflictResult";
 import { detectOverlap } from "./OverlapDetector";
 import type { FileOverlapResult, RangeOverlap } from "./types";
+import { resolveBranchRef } from "../git/GitBranch";
+import { getMergeBase } from "../git/GitMergeBase";
+import { getDiffFromMergeBase, getBranchFileChanges } from "../git/GitDiff";
+import { parseDiffOutput } from "./DiffRangeParser";
 
 export interface ConflictValidationResult {
   /** Files that Git's merge-tree predicts would conflict */
@@ -212,4 +216,72 @@ function parseNameOnlyOutput(output: string): string[] {
   }
 
   return [...files];
+}
+
+export interface PredictedConflictResult {
+  file: string;
+  risk: "HIGH_RISK" | "LOW_RISK";
+  score: number;
+  level: "HIGH" | "LOW";
+}
+
+/**
+ * Compare the output of Agent 1 (getBranchFileChanges) for two branches and decide if there's a potential conflict.
+ * Marks it HIGH_RISK if overlapping line ranges were touched, or LOW_RISK if only the same file (not same lines) was touched.
+ */
+export async function predictConflicts(
+  git: SimpleGit,
+  branchA: string,
+  branchB: string
+): Promise<PredictedConflictResult[]> {
+  // 1. Get changed files on branchA and branchB compared to main
+  const filesA = await getBranchFileChanges(git, branchA);
+  const filesB = await getBranchFileChanges(git, branchB);
+
+  const setA = new Set(filesA);
+  const sharedFiles = filesB.filter((file) => setA.has(file));
+
+  if (sharedFiles.length === 0) {
+    return [];
+  }
+
+  const results: PredictedConflictResult[] = [];
+
+  // 2. Resolve branches and get their diffs relative to their merge base with main
+  const resolvedMain = await resolveBranchRef(git, "main");
+  const mergeBaseA = await getMergeBase(git, resolvedMain.shortName, branchA);
+  const mergeBaseB = await getMergeBase(git, resolvedMain.shortName, branchB);
+
+  const [diffA, diffB] = await Promise.all([
+    getDiffFromMergeBase(git, mergeBaseA, branchA),
+    getDiffFromMergeBase(git, mergeBaseB, branchB),
+  ]);
+
+  const rangesA = parseDiffOutput(diffA.rawDiff);
+  const rangesB = parseDiffOutput(diffB.rawDiff);
+
+  for (const file of sharedFiles) {
+    const fileRangesA = rangesA.get(file) ?? [];
+    const fileRangesB = rangesB.get(file) ?? [];
+
+    const overlapResult = detectOverlap(file, fileRangesA, fileRangesB);
+
+    if (overlapResult.overlapLevel === "HIGH") {
+      results.push({
+        file,
+        risk: "HIGH_RISK",
+        score: 60, // Maps to HIGH in existing RiskScorer (50-79)
+        level: "HIGH",
+      });
+    } else {
+      results.push({
+        file,
+        risk: "LOW_RISK",
+        score: 10, // Maps to LOW in existing RiskScorer (0-19)
+        level: "LOW",
+      });
+    }
+  }
+
+  return results;
 }

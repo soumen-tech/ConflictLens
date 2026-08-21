@@ -23,6 +23,7 @@ import {
 import { applyDiagnostics, createDiagnosticCollection } from './diagnostics';
 import { enrichWithAI } from './aiClient';
 import { DashboardPanel } from './dashboardPanel';
+import { checkCrossBranchConflicts } from './crossBranchWatcher';
 
 export function activate(context: vscode.ExtensionContext): void {
   console.log('[ConflictLens] Extension activated (Phase 4).');
@@ -89,6 +90,13 @@ async function runScan(
     // ── Step 1–3: Analysis + immediate display ─────────────────────────────
     const rawResult = await analyzeProject();
     await applyDiagnostics(diagnosticCollection, rawResult);
+
+    // Proactively scan other branches for cross-branch conflicts
+    try {
+      await checkCrossBranchConflicts();
+    } catch (err) {
+      console.error('[ConflictLens] Cross-branch check failed:', err);
+    }
 
     const count = rawResult.risks.length;
     const label = count === 1 ? 'risk' : 'risks';
