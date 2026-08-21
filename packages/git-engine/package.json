@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "analyze": "ts-node --project tsconfig.tsnode.json src/cli.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint:bom": "node scripts/check-no-bom.js"
   },
   "dependencies": {
     "@babel/parser": "^7.29.8",

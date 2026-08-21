@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file GitBranch.ts
  * Phase 2 — Branch intelligence.
  *

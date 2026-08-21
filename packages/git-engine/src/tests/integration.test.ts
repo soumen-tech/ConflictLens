@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file integration.test.ts
  * End-to-end integration tests using real temporary Git repos.
  * Tests the full analyzeBranches() pipeline (Tests 1–8, 13).

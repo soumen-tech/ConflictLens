@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env ts-node
+#!/usr/bin/env ts-node
 /**
  * @file cli.ts — Developer debugging CLI
  *

@@ -1,107 +1,48 @@
-﻿# ConflictLens — VS Code Extension
+# ConflictLens
 
-AI-powered semantic conflict and security risk detection. Flags issues *before* they reach the merge stage.
-
----
-
-## Phase 1 — Minimal Working Extension
-
-This phase wires together the full Scan Now → Diagnostics pipeline using mock risk data. Real analysis API integration follows in Phase 2.
-
-### Features (Phase 1)
-- **`ConflictLens: Scan Now`** command — runs from the Command Palette
-- Inline VS Code Diagnostics (Problems panel + editor squiggles) for each detected risk
-- Severity mapping: `critical`/`high` → Error · `medium` → Warning · `low` → Information
-- Risk count notification after every scan
-- File-save scaffolding (disabled by default, enabled via `ConflictLens.autoScan`)
+**AI-powered semantic Git conflict and security risk detection — flags issues before merge.**
 
 ---
 
-## Prerequisites
+## 🔍 What is ConflictLens?
 
-- [Node.js](https://nodejs.org/) 18 or later
-- [VS Code](https://code.visualstudio.com/) 1.85 or later
+ConflictLens is an intelligent developer assistant for VS Code that catches breaking Git merge conflicts and critical security risks in real time **before code is committed or merged**.
 
----
-
-## Install & Build
-
-Open a terminal inside the `extension/` directory, then:
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Compile TypeScript → ./out/
-npm run compile
-```
-
-To recompile automatically on every file change (useful during development):
-
-```bash
-npm run watch
-```
+### Key Features
+* **🔀 Pre-Merge Conflict Prediction**: Non-destructive `git merge-tree` simulations predict merge conflicts before you run `git merge`.
+* **🧩 Semantic Breakage Analysis**: Identifies altered function signatures, broken call-sites, and cross-file dependencies.
+* **🛡️ Security & Secret Scanner**: Automatically detects leaked credentials (AWS, GitHub, Slack, DB strings, JWTs) and redacts them in previews.
+* **💉 Code Injection Detection**: Catches SQL Injection, Command Injection, and unsafe dynamic execution (`eval`).
+* **🤖 Gemini AI Remediation**: Explains conflicts and vulnerabilities in plain English with actionable fix recommendations.
+* **📊 Interactive Visual Dashboard**: Project health scores, risk rankings, and in-editor diagnostic squiggles.
 
 ---
 
-## Launching the Extension Development Host (F5)
+## 🚀 Quick Start
 
-1. Open the `extension/` folder **directly** in VS Code:
+1. Open your project folder in VS Code.
+2. Open the Command Palette (`Ctrl+Shift+P` on Windows/Linux, `Cmd+Shift+P` on macOS).
+3. Run:
    ```
-   File → Open Folder → ConflictLens/extension
+   ConflictLens: Open Dashboard
    ```
-2. Press **F5** (or **Run → Start Debugging**).
-3. A new VS Code window titled **[Extension Development Host]** opens with ConflictLens installed.
-
-> `launch.json` and `tasks.json` (inside `.vscode/`) handle compilation and launch automatically — no manual steps needed.
+4. Click **Scan Now** (or run `ConflictLens: Scan Now`).
 
 ---
 
-## Running a Scan
+## ⚙️ Configuration
 
-Inside the Extension Development Host window:
-
-1. Open any folder as a workspace (**File → Open Folder**).
-2. Open the Command Palette: `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (macOS).
-3. Type **`ConflictLens: Scan Now`** and press Enter.
-4. A notification appears: `ConflictLens found 1 risk.`
-5. Open the **Problems** panel (`Ctrl+Shift+M`) to see the diagnostic.
-
----
-
-## Configuration
+Access settings via **Settings (`Ctrl+,`)** → Search `ConflictLens`:
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
-| `ConflictLens.autoScan` | boolean | `false` | Scan automatically on every file save |
-
-Change via **File → Preferences → Settings** → search `ConflictLens`.
-
----
-
-## Project Structure
-
-```
-extension/
-├── src/
-│   ├── extension.ts       # Activation, command registration, save listener
-│   ├── analyzerClient.ts  # Risk data fetch (mock Phase 1 → real API Phase 2)
-│   └── diagnostics.ts     # VS Code Diagnostics API rendering
-├── out/                   # Compiled JS (generated, not committed)
-├── .vscode/
-│   ├── launch.json        # F5 launch config
-│   └── tasks.json         # Default build task
-├── package.json
-├── tsconfig.json
-└── README.md
-```
+| `conflictlens.autoScan` | boolean | `false` | Automatically scan for risks when a file is saved |
+| `conflictlens.apiEndpoint` | string | `http://localhost:3000/analyze` | URL of the local analysis engine |
+| `conflictlens.apiTimeoutMs` | number | `8000` | Maximum request timeout in milliseconds |
+| `conflictlens.geminiApiKey` | string | `""` | Optional Google Gemini API key for AI-enriched explanations |
 
 ---
 
-## Roadmap
+## 📄 License
 
-| Phase | Feature |
-|---|---|
-| **Phase 1** ✅ | Mock data → Diagnostics pipeline |
-| **Phase 2** | Real local analysis API (Members 1 & 2 Express server) |
-| **Phase 3** | Gemini AI explanation layer + React dashboard webview |
+MIT © ConflictLens Team (ctrl-future)

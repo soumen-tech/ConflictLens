@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file GitRepository.ts
  * Phase 1 — Repository detection and root resolution.
  *

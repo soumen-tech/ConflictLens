@@ -13,9 +13,13 @@
     "esModuleInterop": true,
     "baseUrl": "..",
     "paths": {
+ integration
+      "@conflictlens/shared": ["shared/src/index.ts"],
+      "@codeguard/shared": ["shared/src/index.ts"]
       "@conflictlens/shared": [
         "shared/src/index.ts"
       ]
+ main
     }
   },
   "include": [
@@ -26,4 +30,8 @@
     ".vscode-test",
     "webview"
   ]
-}
+ integration
+
+
+
+ main

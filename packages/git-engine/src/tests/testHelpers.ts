@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file testHelpers.ts
  * Utilities to create real temporary Git repos for integration testing.
  * All repos are created in os.tmpdir() and cleaned up after tests.

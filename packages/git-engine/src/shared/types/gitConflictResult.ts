@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file gitConflictResult.ts
  * @description FROZEN shared contract — consumed by Person 2 (Security/Semantic) and
  * Person 3 (Server/AI/Extension/Dashboard). Do NOT change field names or types without
@@ -118,6 +118,7 @@ export interface GitConflictResult {
     oldParams: string[];
     newParams: string[];
     brokenCallSites: Array<{ callerFile: string; calledFunction: string; line: number }>;
+    scope?: "cross-branch" | "intra-branch";
   }>;
   risk: RiskAssessment;
   metadata: {

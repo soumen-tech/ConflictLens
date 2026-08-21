@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file index.ts — Public API entry point for @conflictlens/git-engine
  *
  * The ONLY function Person 2 and Person 3 need to call from this module is:

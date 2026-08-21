@@ -35,3 +35,10 @@ extension/webview/src/**/*.js
 extension/webview/src/**/*.js.map
 extension/webview/vite.config.js
 extension/webview/vite.config.js.map
+
+# Shared package compiled outputs
+shared/src/**/*.d.ts
+shared/src/**/*.d.ts.map
+shared/src/**/*.js
+shared/src/**/*.js.map
+
