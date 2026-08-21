@@ -13,7 +13,9 @@
     "esModuleInterop": true,
     "baseUrl": "..",
     "paths": {
-      "@codeguard/shared": ["shared/src/index.ts"]
+      "@codeguard/shared": [
+        "shared/src/index.ts"
+      ]
     }
   },
   "include": [
@@ -24,8 +26,4 @@
     ".vscode-test",
     "webview"
   ]
- integration
 }
-
-}
- main
