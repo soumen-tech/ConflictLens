@@ -7,11 +7,14 @@
       "dom"
     ],
     "outDir": "out",
-    "rootDir": "src",
     "sourceMap": true,
     "strict": true,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": "..",
+    "paths": {
+      "@codeguard/shared": ["shared/src/index.ts"]
+    }
   },
   "include": [
     "src/**/*.ts"
@@ -21,4 +24,8 @@
     ".vscode-test",
     "webview"
   ]
+ integration
 }
+
+}
+ main
