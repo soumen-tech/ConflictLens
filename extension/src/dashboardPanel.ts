@@ -9,6 +9,13 @@
  *   • Serve the Vite-built React bundle from out/webview/
  *   • Push AnalysisResult data to the webview via postMessage
  *   • Handle messages from the webview (e.g. "open file at line")
+ *
+ * Ready-handshake protocol:
+ *   The webview sends { type: 'ready' } after React mounts.
+ *   Until that signal arrives, update() buffers data without posting.
+ *   On 'ready', the buffered result (if any) is flushed immediately.
+ *   This prevents the race where postMessage fires before the React
+ *   message listener is attached.
  */
 
 import * as vscode from 'vscode';
@@ -21,6 +28,12 @@ export class DashboardPanel {
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
   private readonly _disposables: vscode.Disposable[] = [];
+
+  /** Buffered result — always holds the latest AnalysisResult. */
+  private _bufferedResult: AnalysisResult | null = null;
+
+  /** True once the webview has sent { type: 'ready' }. */
+  private _webviewReady = false;
 
   // ── Public static API ──────────────────────────────────────────────────────
 
@@ -52,9 +65,20 @@ export class DashboardPanel {
     return DashboardPanel.currentPanel;
   }
 
-  /** Push a new AnalysisResult to the open dashboard (no-op if none is open). */
+  /**
+   * Push a new AnalysisResult to the open dashboard.
+   * Always updates the buffer. If the webview is ready, also posts immediately.
+   * No-op if no panel is open.
+   */
   public static update(result: AnalysisResult): void {
-    DashboardPanel.currentPanel?._sendMessage({ type: 'updateRisks', data: result });
+    const panel = DashboardPanel.currentPanel;
+    if (!panel) { return; }
+
+    panel._bufferedResult = result;
+
+    if (panel._webviewReady) {
+      panel._postResult(result);
+    }
   }
 
   // ── Constructor ────────────────────────────────────────────────────────────
@@ -66,7 +90,8 @@ export class DashboardPanel {
     // Set the panel icon
     this._panel.iconPath = vscode.Uri.joinPath(extensionUri, 'media', 'icon.png');
 
-    // Load the React app HTML
+    // Load the React app HTML (resets _webviewReady since the webview is new)
+    this._webviewReady = false;
     this._panel.webview.html = this._buildHtml();
 
     // Handle messages sent from the React app (e.g. clicking a file link)
@@ -82,11 +107,25 @@ export class DashboardPanel {
 
   // ── Internal helpers ───────────────────────────────────────────────────────
 
-  private _sendMessage(message: unknown): void {
-    this._panel.webview.postMessage(message);
+  /** Post the updateRisks message to the webview. */
+  private _postResult(result: AnalysisResult): void {
+    this._panel.webview.postMessage({ type: 'updateRisks', data: result });
+  }
+
+  /** Flush buffered result to the webview (called on 'ready'). */
+  private _flushBuffer(): void {
+    if (this._bufferedResult) {
+      this._postResult(this._bufferedResult);
+    }
   }
 
   private async _handleWebviewMessage(msg: WebviewMessage): Promise<void> {
+    if (msg.type === 'ready') {
+      this._webviewReady = true;
+      this._flushBuffer();
+      return;
+    }
+
     if (msg.type === 'scanNow') {
       await vscode.commands.executeCommand('conflictlens.scanNow');
       return;

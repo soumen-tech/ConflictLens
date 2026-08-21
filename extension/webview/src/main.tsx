@@ -10,4 +10,9 @@ if (root) {
       <App />
     </React.StrictMode>
   );
+
+  // Signal the extension host that the React tree is mounted and the
+  // message listener in App.tsx is active.  DashboardPanel buffers
+  // any AnalysisResult until it receives this message.
+  acquireVsCodeApi().postMessage({ type: 'ready' });
 }

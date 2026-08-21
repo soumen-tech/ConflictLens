@@ -4,15 +4,17 @@
   "description": "AI-powered semantic conflict and security risk detection — flags issues before merge.",
   "version": "0.0.1",
   "publisher": "ctrl-future",
+ integration
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soumen-tech/ConflictLens"
+  },
+  "license": "MIT",
+ main
   "icon": "media/icon.png",
   "engines": {
     "vscode": "^1.85.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/soumen-tech/ConflictLens.git"
-  },
-  "license": "MIT",
   "categories": [
     "Linters",
     "Other"
@@ -56,6 +58,11 @@
           "type": "string",
           "default": "",
           "description": "Your Gemini API key (gemini-2.5-flash). Used to generate plain-English explanations and recommendations for each detected risk. Leave empty to skip AI enrichment."
+        },
+        "conflictlens.proxyUrl": {
+          "type": "string",
+          "default": "",
+          "description": "URL of the ConflictLens hosted Gemini proxy (e.g. https://your-proxy.onrender.com). When set, AI explanations are served from the proxy and count against the free-scan allowance. Leave empty to use your own Gemini API key directly (Phase 3 behaviour unchanged)."
         }
       }
     }
@@ -66,7 +73,8 @@
     "compile:webview": "npm run build --workspace=conflictlens-dashboard",
     "compile": "npm run compile:webview && npm run compile:ext",
     "build": "npm run compile",
-    "test": "node smoke-test.js",
+    "test": "vitest run",
+    "test:smoke": "node smoke-test.js",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts"
   },
@@ -74,8 +82,9 @@
     "@conflictlens/shared": "*"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
     "@types/node": "^20.0.0",
-    "typescript": "^5.3.0"
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0",
+    "vitest": "^2.1.9"
   }
 }
