@@ -1,6 +1,6 @@
-# Product Requirements Document (PRD)
+﻿# Product Requirements Document (PRD)
 
-## CodeGuard — AI-Powered Git Conflict & Security Intelligence Platform
+## ConflictLens — AI-Powered Git Conflict & Security Intelligence Platform
 
 **Version:** 1.0
 **Date:** August 18, 2026
@@ -14,19 +14,19 @@
 
 ### 1.1 Product Name
 
-**CodeGuard**
+**ConflictLens**
 
 ### 1.2 One-Line Pitch
 
-> "Don't wait for the merge to reveal the problem. CodeGuard predicts it before it happens."
+> "Don't wait for the merge to reveal the problem. ConflictLens predicts it before it happens."
 
 ### 1.3 Summary
 
-CodeGuard is a VS Code extension backed by an AI analysis engine that detects **semantic** merge conflicts and **security risks** across Git branches — before they reach the merge stage. Unlike Git's native line-level conflict detection, CodeGuard understands function signatures, dependency graphs, and security-sensitive code patterns to flag risks that traditional tools miss.
+ConflictLens is a VS Code extension backed by an AI analysis engine that detects **semantic** merge conflicts and **security risks** across Git branches — before they reach the merge stage. Unlike Git's native line-level conflict detection, ConflictLens understands function signatures, dependency graphs, and security-sensitive code patterns to flag risks that traditional tools miss.
 
 ### 1.4 Core Differentiator
 
-> "CodeGuard goes beyond Git's line-level conflict detection by understanding code semantics, dependencies, and security risks before changes are merged."
+> "ConflictLens goes beyond Git's line-level conflict detection by understanding code semantics, dependencies, and security risks before changes are merged."
 
 ---
 
@@ -167,7 +167,7 @@ Recommendation: Update checkout.js to pass a discount argument,
 or provide a default value for backward compatibility.
 ```
 
-Second demo beat: commit a file with a hardcoded API key → CodeGuard flags it as 🔴 Critical Security Risk with redacted preview + recommendation to move it to environment variables.
+Second demo beat: commit a file with a hardcoded API key → ConflictLens flags it as 🔴 Critical Security Risk with redacted preview + recommendation to move it to environment variables.
 
 ---
 
@@ -284,6 +284,6 @@ The work is divided into **3 independent, parallelizable tracks** so each member
 
 ## 12. Appendix — Core Positioning for Pitch
 
-> "CodeGuard goes beyond Git's line-level conflict detection by understanding code semantics, dependencies, and security risks before changes are merged."
+> "ConflictLens goes beyond Git's line-level conflict detection by understanding code semantics, dependencies, and security risks before changes are merged."
 
-> "Don't wait for the merge to reveal the problem. CodeGuard predicts it before it happens."
+> "Don't wait for the merge to reveal the problem. ConflictLens predicts it before it happens."

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file git.test.ts
  * Tests for core/git layer: repository detection, branch intelligence,
  * commit comparison, merge base. Uses real temporary Git repos.
@@ -25,7 +25,7 @@ import {
 } from "../core/git/GitBranch";
 import { getMergeBase } from "../core/git/GitMergeBase";
 import { compareBranches } from "../core/git/GitCommit";
-import { CodeGuardException } from "../core/git/GitErrors";
+import { ConflictLensException } from "../core/git/GitErrors";
 
 // ---------------------------------------------------------------------------
 // Test 12 — Non-git directory → clean structured error
@@ -37,12 +37,12 @@ describe("GitRepository.openRepository", () => {
     // Fallback: create a truly isolated dir under C:\ system root.
     // We verify it throws NOT_A_GIT_REPO by using a path with no git ancestry.
     const systemRoot = path.parse(process.cwd()).root; // e.g. "C:\"
-    const isolatedBase = path.join(systemRoot, "codeguard-test-nongit");
+    const isolatedBase = path.join(systemRoot, "conflictlens-test-nongit");
     fs.mkdirSync(isolatedBase, { recursive: true });
     const tmpDir = fs.mkdtempSync(path.join(isolatedBase, "run-"));
     try {
       await expect(openRepository(tmpDir)).rejects.toMatchObject({
-        codeGuardError: { code: "NOT_A_GIT_REPO" },
+        ConflictLensError: { code: "NOT_A_GIT_REPO" },
       });
     } finally {
       fs.rmSync(isolatedBase, { recursive: true, force: true });
@@ -51,7 +51,7 @@ describe("GitRepository.openRepository", () => {
 
   it("returns structured error for a path that does not exist", async () => {
     await expect(openRepository("/definitely/does/not/exist/xyz123")).rejects.toMatchObject({
-      codeGuardError: { code: "INVALID_REPO_PATH" },
+      ConflictLensError: { code: "INVALID_REPO_PATH" },
     });
   });
 
@@ -128,7 +128,7 @@ describe("GitBranch", () => {
     repo = await createTestRepo("branch-missing");
     const { git } = await openRepository(repo.dir);
     await expect(resolveBranchRef(git, "does-not-exist")).rejects.toMatchObject({
-      codeGuardError: { code: "BRANCH_NOT_FOUND" },
+      ConflictLensError: { code: "BRANCH_NOT_FOUND" },
     });
   });
 
@@ -197,7 +197,7 @@ describe("GitMergeBase", () => {
     repo = await createTestRepo("mergebase-missing");
     const { git } = await openRepository(repo.dir);
     await expect(getMergeBase(git, "main", "nonexistent")).rejects.toMatchObject({
-      codeGuardError: { code: expect.stringMatching(/BRANCH_NOT_FOUND|MERGE_BASE_UNAVAILABLE/) },
+      ConflictLensError: { code: expect.stringMatching(/BRANCH_NOT_FOUND|MERGE_BASE_UNAVAILABLE/) },
     });
   });
 });

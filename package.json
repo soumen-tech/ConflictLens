@@ -1,7 +1,7 @@
 {
-  "name": "codeguard",
+  "name": "conflictlens",
   "version": "1.0.0",
-  "description": "CodeGuard — AI-powered Git conflict & security intelligence platform",
+  "description": "ConflictLens — AI-powered Git conflict & security intelligence platform",
   "private": true,
   "workspaces": [
     "packages/*",

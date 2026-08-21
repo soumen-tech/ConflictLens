@@ -1,10 +1,10 @@
-# CodeGuard — System Architecture
+﻿# ConflictLens — System Architecture
 
-This document describes the high-level system architecture, data flow, and components of CodeGuard.
+This document describes the high-level system architecture, data flow, and components of ConflictLens.
 
 ## 1. System Overview
 
-CodeGuard is an AI-powered git conflict and security intelligence platform. It consists of a VS Code Extension frontend that communicates with a local Core Analysis Engine and the Google Gemini API to analyze Git diffs in real-time, predict semantic integration conflicts, identify security risks, and provide plain-English explanations and remediation recommendations.
+ConflictLens is an AI-powered git conflict and security intelligence platform. It consists of a VS Code Extension frontend that communicates with a local Core Analysis Engine and the Google Gemini API to analyze Git diffs in real-time, predict semantic integration conflicts, identify security risks, and provide plain-English explanations and remediation recommendations.
 
 ## 2. High-Level Architecture Diagram
 

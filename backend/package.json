@@ -16,8 +16,8 @@
     "dev:server": "ts-node --project tsconfig.tsnode.json src/server.ts"
   },
   "dependencies": {
-    "@codeguard/git-engine": "*",
-    "@codeguard/shared": "*",
+    "@conflictlens/git-engine": "*",
+    "@conflictlens/shared": "*",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "simple-git": "^3.27.0",

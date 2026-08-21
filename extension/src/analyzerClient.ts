@@ -21,7 +21,7 @@ import {
   RiskType,
   SemanticConflictDetails,
   SecurityRiskDetails,
-} from '@codeguard/shared';
+} from '@conflictlens/shared';
 
 export {
   Risk,

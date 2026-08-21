@@ -1,4 +1,4 @@
-# ConflictLens — VS Code Extension
+﻿# ConflictLens — VS Code Extension
 
 AI-powered semantic conflict and security risk detection. Flags issues *before* they reach the merge stage.
 
@@ -13,7 +13,7 @@ This phase wires together the full Scan Now → Diagnostics pipeline using mock 
 - Inline VS Code Diagnostics (Problems panel + editor squiggles) for each detected risk
 - Severity mapping: `critical`/`high` → Error · `medium` → Warning · `low` → Information
 - Risk count notification after every scan
-- File-save scaffolding (disabled by default, enabled via `codeguard.autoScan`)
+- File-save scaffolding (disabled by default, enabled via `ConflictLens.autoScan`)
 
 ---
 
@@ -73,9 +73,9 @@ Inside the Extension Development Host window:
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
-| `codeguard.autoScan` | boolean | `false` | Scan automatically on every file save |
+| `ConflictLens.autoScan` | boolean | `false` | Scan automatically on every file save |
 
-Change via **File → Preferences → Settings** → search `codeguard`.
+Change via **File → Preferences → Settings** → search `ConflictLens`.
 
 ---
 

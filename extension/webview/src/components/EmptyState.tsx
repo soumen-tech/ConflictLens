@@ -2,6 +2,14 @@ interface EmptyStateProps {
   type: 'waiting' | 'clean';
 }
 
+// VS Code webview API — injected by VS Code at runtime
+declare const acquireVsCodeApi: () => { postMessage(msg: unknown): void };
+const vscodeApi = (typeof acquireVsCodeApi !== 'undefined') ? acquireVsCodeApi() : null;
+
+function triggerScan() {
+  vscodeApi?.postMessage({ type: 'scanNow' });
+}
+
 export function EmptyState({ type }: EmptyStateProps) {
   const isWaiting = type === 'waiting';
 
@@ -46,9 +54,20 @@ export function EmptyState({ type }: EmptyStateProps) {
       </p>
 
       {isWaiting && (
-        <div className="mt-6 px-4 py-2 rounded-lg text-xs font-mono" style={{ background: 'rgba(124,92,191,0.1)', color: '#c8b8ea', border: '1px solid rgba(124,92,191,0.2)' }}>
-          <span className="text-cl-muted">⌘⇧P</span> → ConflictLens: Scan Now
-        </div>
+        <button
+          onClick={triggerScan}
+          className="mt-6 px-5 py-2.5 rounded-lg text-xs font-semibold transition-all"
+          style={{
+            background: 'rgba(124,92,191,0.15)',
+            color: '#c8b8ea',
+            border: '1px solid rgba(124,92,191,0.35)',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(124,92,191,0.3)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(124,92,191,0.15)')}
+        >
+          🔍 Scan Now
+        </button>
       )}
     </div>
   );

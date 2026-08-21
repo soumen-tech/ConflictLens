@@ -1,5 +1,5 @@
-/**
- * @file index.ts — Public API entry point for @codeguard/git-engine
+﻿/**
+ * @file index.ts — Public API entry point for @conflictlens/git-engine
  *
  * The ONLY function Person 2 and Person 3 need to call from this module is:
  *   analyzeBranches({ repositoryPath, branchA, branchB })
@@ -18,8 +18,8 @@ import { validateMergeConflicts, buildConflictCandidates } from "./core/conflict
 import { computeRiskScore } from "./core/risk/RiskScorer";
 import { detectSemanticConflicts, semanticConflictsToRisks } from "./core/semantic/SemanticAnalyzer";
 import type { GitConflictResult } from "./shared/types/gitConflictResult";
-import { CodeGuardException } from "./core/git/GitErrors";
-import type { Risk, RiskLevel as SharedRiskLevel } from "@codeguard/shared";
+import { ConflictLensException } from "./core/git/GitErrors";
+import type { Risk, RiskLevel as SharedRiskLevel } from "@conflictlens/shared";
 
 // Re-export the shared contract and error types for consumers
 export type {
@@ -31,10 +31,10 @@ export type {
   RiskAssessment,
   RiskLevel,
   OverlapLevel,
-  CodeGuardError,
-  CodeGuardErrorCode,
+  ConflictLensError,
+  ConflictLensErrorCode,
 } from "./shared/types/gitConflictResult";
-export { CodeGuardException, makeError } from "./core/git/GitErrors";
+export { ConflictLensException, makeError } from "./core/git/GitErrors";
 
 // ---------------------------------------------------------------------------
 // Adapter to canonical Risk shape
@@ -95,7 +95,7 @@ export interface AnalyzeBranchesOptions {
  * This is the single entry point for Person 2 (Security/Semantic) and
  * Person 3 (Server/AI/Extension/Dashboard) to consume.
  *
- * @throws CodeGuardException with a typed { code, message } error shape.
+ * @throws ConflictLensException with a typed { code, message } error shape.
  *         Never throws raw Error objects or exposes stack traces.
  */
 export async function analyzeBranches(
@@ -211,7 +211,7 @@ export async function analyzeBranches(
   };
 }
 
-// Make CodeGuardException catchable as a type guard for consumers
-export function isCodeGuardException(err: unknown): err is CodeGuardException {
-  return err instanceof CodeGuardException;
+// Make ConflictLensException catchable as a type guard for consumers
+export function isConflictLensException(err: unknown): err is ConflictLensException {
+  return err instanceof ConflictLensException;
 }

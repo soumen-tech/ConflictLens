@@ -1,0 +1,33 @@
+# Source TypeScript — compiled to out/
+src/**
+webview/src/**
+webview/index.html
+webview/package.json
+webview/package-lock.json
+webview/tsconfig.json
+webview/vite.config.ts
+webview/postcss.config.js
+webview/tailwind.config.js
+
+# Config files
+.vscode/**
+!.vscode/extensions.json
+tsconfig.json
+.eslintrc*
+.prettierrc*
+
+# Dev/test files
+**/*.test.ts
+**/*.spec.ts
+smoke-test.js
+
+# Build artifacts we don't need
+out/**/*.map
+
+# Node modules — VS Code bundles them from the extension root only
+node_modules/**
+
+# Docs / meta
+docs/**
+*.md
+!README.md

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file GitRepository.ts
  * Phase 1 — Repository detection and root resolution.
  *
@@ -10,7 +10,7 @@ import * as path from "path";
 import * as fs from "fs";
 import simpleGit, { SimpleGit } from "simple-git";
 import { throwError } from "./GitErrors";
-import type { CodeGuardError } from "../../shared/types/gitConflictResult";
+import type { ConflictLensError } from "../../shared/types/gitConflictResult";
 
 export interface GitRepositoryInfo {
   /** Absolute path to the repository root (.git parent) */
@@ -25,7 +25,7 @@ export interface GitRepositoryInfo {
  * Detect whether a path is inside a Git repo, walk up to find the root,
  * and return a typed info object.
  *
- * @throws CodeGuardException with code NOT_A_GIT_REPO | INVALID_REPO_PATH | GIT_NOT_INSTALLED
+ * @throws ConflictLensException with code NOT_A_GIT_REPO | INVALID_REPO_PATH | GIT_NOT_INSTALLED
  */
 export async function openRepository(repoPath: string): Promise<GitRepositoryInfo> {
   // 1. Validate the path exists and is accessible
@@ -40,7 +40,7 @@ export async function openRepository(repoPath: string): Promise<GitRepositoryInf
     if ((err as NodeJS.ErrnoException).code === "ENOENT") {
       throwError("INVALID_REPO_PATH", `Directory does not exist: ${absolutePath}`);
     }
-    // Re-throw CodeGuardException as-is
+    // Re-throw ConflictLensException as-is
     throw err;
   }
 
@@ -106,8 +106,8 @@ function parseGitVersion(raw: string): string {
   return match ? match[1] : raw;
 }
 
-/** Type guard: is this error a CodeGuardError shape? */
-export function isCodeGuardError(value: unknown): value is CodeGuardError {
+/** Type guard: is this error a ConflictLensError shape? */
+export function isConflictLensError(value: unknown): value is ConflictLensError {
   return (
     typeof value === "object" &&
     value !== null &&

@@ -15,7 +15,7 @@
 import type { SimpleGit } from "simple-git";
 import type { ConflictCandidate, ChangedFile } from "../../shared/types/gitConflictResult";
 import { detectOverlap } from "./OverlapDetector";
-import type { FileOverlapResult } from "./types";
+import type { FileOverlapResult, RangeOverlap } from "./types";
 
 export interface ConflictValidationResult {
   /** Files that Git's merge-tree predicts would conflict */
@@ -138,7 +138,7 @@ export function buildConflictCandidates(
       hasActualConflict,
       predictedConflict,
       confidence,
-      overlappingRanges: overlap.overlaps.map((o) => ({
+      overlappingRanges: overlap.overlaps.map((o: RangeOverlap) => ({
         rangeA: o.rangeA,
         rangeB: o.rangeB,
       })),

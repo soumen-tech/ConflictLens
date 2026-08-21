@@ -1,6 +1,6 @@
-# CodeGuard — Technology Stack
+﻿# ConflictLens — Technology Stack
 
-This document details the software development technologies, frameworks, and libraries selected to build CodeGuard. The stack prioritizes open-source tools and free-tier services to ensure zero hosting/operating costs for development and demo environments.
+This document details the software development technologies, frameworks, and libraries selected to build ConflictLens. The stack prioritizes open-source tools and free-tier services to ensure zero hosting/operating costs for development and demo environments.
 
 ## 1. Extension (Frontend Client)
 

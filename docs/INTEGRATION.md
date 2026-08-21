@@ -1,4 +1,4 @@
-# ConflictLens Integration & Semantic Engine Documentation
+﻿# ConflictLens Integration & Semantic Engine Documentation
 
 Welcome to the unified ConflictLens repository! This document serves as the guide for judges and developers to understand the integration structure, implementation details, and verification steps.
 
@@ -22,8 +22,8 @@ graph TD
 ```
 
 ### Module Structure
-- `shared/` (`@codeguard/shared`): Canonical TypeScript types and structures ensuring identical data contracts between extension front-end, Express server, Git analyzer, and Security scanner.
-- `packages/git-engine/` (`@codeguard/git-engine`): High-efficiency git-level diff analyzer, conflict detector, and AST semantic conflict analyzer using Babel.
+- `shared/` (`@conflictlens/shared`): Canonical TypeScript types and structures ensuring identical data contracts between extension front-end, Express server, Git analyzer, and Security scanner.
+- `packages/git-engine/` (`@conflictlens/git-engine`): High-efficiency git-level diff analyzer, conflict detector, and AST semantic conflict analyzer using Babel.
 - `backend/` (`@conflictlens/backend`): Security scanning suite (injection attacks, API credentials leaks) and the integration Express server running on port `3000`.
 - `extension/`: The VS Code extension, featuring React-based Webview dashboard and Gemini AI client-side masking.
 

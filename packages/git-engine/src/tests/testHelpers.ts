@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file testHelpers.ts
  * Utilities to create real temporary Git repos for integration testing.
  * All repos are created in os.tmpdir() and cleaned up after tests.
@@ -18,12 +18,12 @@ export interface TestRepo {
  * Create a fresh temporary Git repo with an initial commit on 'main'.
  */
 export async function createTestRepo(name = "test-repo"): Promise<TestRepo> {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), `codeguard-${name}-`));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), `conflictlens-${name}-`));
 
   const git = simpleGit({ baseDir: dir });
   await git.init();
   await git.addConfig("user.name", "Test User");
-  await git.addConfig("user.email", "test@codeguard.test");
+  await git.addConfig("user.email", "test@ConflictLens.test");
 
   // Rename default branch to 'main'
   try {

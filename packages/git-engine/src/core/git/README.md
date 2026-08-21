@@ -1,6 +1,6 @@
-# core/git — Git Repository & Branch Intelligence
+﻿# core/git — Git Repository & Branch Intelligence
 
-This module is the lowest-level layer of the CodeGuard Git engine. It wraps `simple-git` into typed, structured APIs for detecting repositories, reading branch state, fetching commit information, computing merge bases, and diffing branches. It has **zero dependencies** on VS Code, Express, the security scanner, or the AI layer.
+This module is the lowest-level layer of the ConflictLens Git engine. It wraps `simple-git` into typed, structured APIs for detecting repositories, reading branch state, fetching commit information, computing merge bases, and diffing branches. It has **zero dependencies** on VS Code, Express, the security scanner, or the AI layer.
 
 ---
 

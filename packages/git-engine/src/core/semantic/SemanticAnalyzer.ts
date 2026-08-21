@@ -17,7 +17,7 @@ import { extractSignatures, diffSignatures } from "./SignatureAnalyzer";
 import type { SignatureChange } from "./SignatureAnalyzer";
 import { findCallSites } from "./DependencyGraph";
 import type { CallSite } from "./DependencyGraph";
-import type { Risk } from "@codeguard/shared";
+import type { Risk } from "@conflictlens/shared";
 
 export interface SemanticConflict {
   /** The function whose signature changed */

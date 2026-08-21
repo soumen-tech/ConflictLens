@@ -1,6 +1,6 @@
-# ConflictLens (CodeGuard)
+# ConflictLens
 
-> **"Don't wait for the merge to reveal the problem. CodeGuard predicts it before it happens."**
+> **"Don't wait for the merge to reveal the problem. ConflictLens predicts it before it happens."
 
 ConflictLens is an AI-powered VS Code extension + backend that predicts **semantic merge conflicts** and **security risks** across Git branches — *before* they reach the merge stage. Unlike Git's native line-level conflict detection, ConflictLens understands function signatures, dependency graphs, and security-sensitive code patterns to flag risks that traditional tools miss.
 
