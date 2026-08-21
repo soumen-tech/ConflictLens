@@ -3,11 +3,16 @@
   "displayName": "ConflictLens",
   "description": "AI-powered semantic conflict and security risk detection — flags issues before merge.",
   "version": "0.0.1",
-  "publisher": "conflictlens-team",
+  "publisher": "CTRLFUTURE",
   "icon": "media/icon.png",
   "engines": {
     "vscode": "^1.85.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soumen-tech/ConflictLens.git"
+  },
+  "license": "MIT",
   "categories": [
     "Linters",
     "Other"
