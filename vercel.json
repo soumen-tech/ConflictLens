@@ -1,4 +1,17 @@
 {
+  "version": 2,
   "buildCommand": "npm run build",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "builds": [
+    {
+      "src": "backend/dist/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "backend/dist/server.js"
+    }
+  ]
 }
