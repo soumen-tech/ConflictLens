@@ -12,7 +12,7 @@
     "shared"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "npm run build --workspace=shared --workspace=packages/git-engine && npm run build --workspace=backend --workspace=backend/gemma-proxy --workspace=extension/webview && npm run build --workspace=extension",
     "test": "npm run test --workspaces",
     "analyze": "node packages/git-engine/dist/cli.js"
   },
