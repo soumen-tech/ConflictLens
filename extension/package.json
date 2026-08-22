@@ -2,7 +2,7 @@
   "name": "conflictlens",
   "displayName": "ConflictLens",
   "description": "AI-powered semantic conflict and security risk detection — flags issues before merge.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "ctrl-future",
   "repository": {
     "type": "git",

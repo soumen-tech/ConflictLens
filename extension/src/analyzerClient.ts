@@ -21,7 +21,7 @@ import {
   RiskType,
   SemanticConflictDetails,
   SecurityRiskDetails,
-} from '@conflictlens/shared';
+} from '../../shared/src';
 
 export {
   Risk,
@@ -98,7 +98,7 @@ import {
   analyzeBranches,
   adaptGitConflictResult,
   getCurrentBranch,
-} from '@conflictlens/git-engine';
+} from '../../packages/git-engine/src';
 import simpleGit from 'simple-git';
 
 /**

@@ -5,7 +5,7 @@ import {
   listLocalBranches,
   listRemoteBranches,
   getCurrentBranch,
-} from "@conflictlens/git-engine";
+} from "../../packages/git-engine/src";
 
 /**
  * Scan other local and remote branches for potential merge conflicts against
