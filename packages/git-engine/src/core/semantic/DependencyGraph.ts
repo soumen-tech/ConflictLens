@@ -26,11 +26,12 @@ export interface CallSite {
  * Returns all call sites found that reference imported symbols.
  */
 export function findCallSites(source: string, file: string): CallSite[] {
+  const cleanSource = source.replace(/^\uFEFF/, "");
   const callSites: CallSite[] = [];
 
   let ast;
   try {
-    ast = parser.parse(source, {
+    ast = parser.parse(cleanSource, {
       sourceType: "module",
       plugins: ["typescript", "jsx", "decorators-legacy", "classProperties"],
       errorRecovery: true,

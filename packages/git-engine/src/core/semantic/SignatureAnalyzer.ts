@@ -34,11 +34,12 @@ export interface SignatureChange {
  * Parse a JS/TS source string and extract all function signatures.
  */
 export function extractSignatures(source: string, file: string): FunctionSignature[] {
+  const cleanSource = source.replace(/^\uFEFF/, "");
   const signatures: FunctionSignature[] = [];
 
   let ast;
   try {
-    ast = parser.parse(source, {
+    ast = parser.parse(cleanSource, {
       sourceType: "module",
       plugins: ["typescript", "jsx", "decorators-legacy", "classProperties"],
       errorRecovery: true,

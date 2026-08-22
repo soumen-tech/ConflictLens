@@ -18,6 +18,9 @@ import { validateMergeConflicts, buildConflictCandidates } from "./core/conflict
 export type { PredictedConflictResult } from "./core/conflict/ConflictDetector";
 import { computeRiskScore } from "./core/risk/RiskScorer";
 import { detectSemanticConflicts, semanticConflictsToRisks } from "./core/semantic/SemanticAnalyzer";
+export { detectSemanticConflicts, semanticConflictsToRisks };
+export { verifySignatureBreak } from "./core/semantic/RuntimeSignatureVerifier";
+export type { SignatureBreakVerificationResult } from "./core/semantic/RuntimeSignatureVerifier";
 import type { GitConflictResult } from "./shared/types/gitConflictResult";
 import { ConflictLensException } from "./core/git/GitErrors";
 import type { Risk, RiskLevel as SharedRiskLevel } from "@conflictlens/shared";
@@ -154,28 +157,55 @@ export async function analyzeBranches(
   const branchAFiles = new Map<string, string>();
   const branchBFiles = new Map<string, string>();
 
+  const candidateFiles = new Set<string>();
+
+  // Add files changed in diffs
   for (const file of allFiles) {
     const ext = file.path.split('.').pop()?.toLowerCase();
-    if (!["js", "ts", "jsx", "tsx", "mjs", "cjs"].includes(ext || "")) {
-      continue;
+    if (["js", "ts", "jsx", "tsx", "mjs", "cjs"].includes(ext || "")) {
+      candidateFiles.add(file.path);
+    }
+  }
+
+  // Also include tracked JS/TS files from both branches to catch unchanged callers
+  const getTrackedJsFiles = async (ref: string): Promise<string[]> => {
+    try {
+      const output = await git.raw(["ls-tree", "-r", "--name-only", ref]);
+      return output
+        .split(/\r?\n/)
+        .map((f) => f.trim())
+        .filter((f) => [".js", ".ts", ".jsx", ".tsx", ".mjs", ".cjs"].some((ext) => f.endsWith(ext)));
+    } catch {
+      return [];
+    }
+  };
+
+  const [trackedA, trackedB] = await Promise.all([
+    getTrackedJsFiles(branchA),
+    getTrackedJsFiles(branchB),
+  ]);
+
+  for (const f of [...trackedA, ...trackedB]) {
+    candidateFiles.add(f);
+  }
+
+  for (const filePath of candidateFiles) {
+    try {
+      baseFiles.set(filePath, await git.show([`${mergeBase}:${filePath}`]));
+    } catch {
+      baseFiles.set(filePath, "");
     }
 
     try {
-      baseFiles.set(file.path, await git.show([`${mergeBase}:${file.path}`]));
+      branchAFiles.set(filePath, await git.show([`${branchA}:${filePath}`]));
     } catch {
-      baseFiles.set(file.path, "");
+      branchAFiles.set(filePath, "");
     }
 
     try {
-      branchAFiles.set(file.path, await git.show([`${branchA}:${file.path}`]));
+      branchBFiles.set(filePath, await git.show([`${branchB}:${filePath}`]));
     } catch {
-      branchAFiles.set(file.path, "");
-    }
-
-    try {
-      branchBFiles.set(file.path, await git.show([`${branchB}:${file.path}`]));
-    } catch {
-      branchBFiles.set(file.path, "");
+      branchBFiles.set(filePath, "");
     }
   }
 

@@ -28,8 +28,9 @@ import type { ChangedRange } from "../../shared/types/gitConflictResult";
  * which is what we use for overlap detection.
  */
 export function parseDiffOutput(rawDiff: string): Map<string, ChangedRange[]> {
+  const cleanDiff = rawDiff.replace(/^\uFEFF/, "");
   const result = new Map<string, ChangedRange[]>();
-  const sections = splitIntoFileSections(rawDiff);
+  const sections = splitIntoFileSections(cleanDiff);
 
   for (const section of sections) {
     const filePath = extractNewFilePath(section.header);

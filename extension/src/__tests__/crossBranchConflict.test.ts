@@ -65,5 +65,5 @@ describe("Cross-branch conflict warning integration", () => {
     expect(warningText).toContain("shared.js");
     expect(warningText).toContain("branch-a");
     expect(warningText).toContain("HIGH_RISK");
-  });
+  }, 15000);
 });

@@ -4,6 +4,12 @@
   "description": "ConflictLens Git & Conflict Analysis Engine — core/git, core/conflict, core/risk",
   "main": "dist/packages/git-engine/src/index.js",
   "types": "dist/packages/git-engine/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "dev": "tsc --watch",

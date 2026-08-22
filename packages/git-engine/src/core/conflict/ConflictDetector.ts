@@ -198,11 +198,11 @@ export function buildConflictCandidates(
  * a merge-tree SHA (the partial merged tree); we skip any lines that look
  * like a 40-character hex SHA and are not file paths.
  *
- * This parser is intentionally simple — it does NOT look for "CONFLICT"
- * text anywhere, so file CONTENT containing the literal string
- * "CONFLICT (content): Merge conflict in X.js" cannot trigger false positives.
+ * We also filter out any error header/wrapper text attached by runner libraries
+ * (e.g. simple-git's "Command failed...", "fatal:...", etc.) to prevent false-positive
+ * file paths.
  */
-function parseNameOnlyOutput(output: string): string[] {
+export function parseNameOnlyOutput(output: string): string[] {
   const files = new Set<string>();
   const shaPattern = /^[0-9a-f]{40}$/i;
 
@@ -211,6 +211,17 @@ function parseNameOnlyOutput(output: string): string[] {
     if (!line) continue;
     // Skip the merge-tree result SHA that appears on the first line
     if (shaPattern.test(line)) continue;
+    // Skip git / simple-git command headers & error prefixes
+    if (
+      line.startsWith("Command failed") ||
+      line.includes("failed with exit code") ||
+      line.startsWith("fatal:") ||
+      line.startsWith("error:") ||
+      line.startsWith("warning:") ||
+      line.includes("git merge-tree")
+    ) {
+      continue;
+    }
     // Everything else is a conflicting file path
     files.add(line);
   }
