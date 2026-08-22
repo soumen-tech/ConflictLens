@@ -108,6 +108,15 @@ async function runScan(
   extensionUri: vscode.Uri,
   context: vscode.ExtensionContext,
 ): Promise<void> {
+  // Guard: no folder open — nothing to scan
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    vscode.window.showWarningMessage(
+      'ConflictLens: No folder open. Open the folder you want to scan first (File → Open Folder).'
+    );
+    return;
+  }
+
   try {
     // ── Step 1–3: Analysis + immediate display ─────────────────────────────
     const rawResult = await analyzeProject();
@@ -127,17 +136,18 @@ async function runScan(
     DashboardPanel.createOrShow(extensionUri);
     DashboardPanel.update(rawResult);
 
+    // ── Step 4–6: AI enrichment — runs for ALL scans, including 0-risk results,
+    // so the dashboard always gets a second update with real data and the
+    // skeleton bars are always resolved (never left hanging indefinitely).
+    const enrichedResult = await enrichWithAI(rawResult, context);
+    await applyDiagnostics(diagnosticCollection, enrichedResult);
+    DashboardPanel.update(enrichedResult);
+
     if (count === 0) {
       vscode.window.showInformationMessage('ConflictLens found 0 risks. ✅');
       return;
     }
     vscode.window.showWarningMessage(`ConflictLens found ${count} ${label}.`);
-
-    // ── Step 4–6: AI enrichment (non-blocking for the notification) ─────────
-    // enrichWithAI gracefully no-ops if the key is missing or Gemini fails.
-    const enrichedResult = await enrichWithAI(rawResult, context);
-    await applyDiagnostics(diagnosticCollection, enrichedResult);
-    DashboardPanel.update(enrichedResult);
 
   } catch (error) {
     // ── Analysis API errors — keep previous diagnostics ────────────────────
