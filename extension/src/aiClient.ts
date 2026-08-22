@@ -24,6 +24,7 @@
  */
 
 import * as vscode from 'vscode';
+import * as crypto from 'crypto';
 import { AnalysisResult, Risk } from './analyzerClient';
 
 // ─── Gemini REST API types (BYO-key direct path) ─────────────────────────────

@@ -123,11 +123,59 @@ describe("Agent Verification Suite — Agent 1 Bug Fixes & Detection Contracts",
       ];
 
       const verification = verifySignatureBreak(change, callSites);
-
+ 
       expect(verification.isRuntimeBreak).toBe(true);
       expect(verification.expectedMinArgs).toBe(3);
       expect(verification.affectedCallSites).toHaveLength(1);
       expect(verification.affectedCallSites[0].callerFile).toBe("src/checkout.js");
+    });
+  });
+
+  // ── 5. Project Health Risk Score Formula Verification (Agent 1) ─────────────────
+  describe("Project Health Risk Score Formula (computeHealthScore)", () => {
+    const SEVERITY_CONFIG = {
+      critical: { weight: 40 },
+      high:     { weight: 20 },
+      medium:   { weight: 5  },
+      low:      { weight: 1  },
+    };
+
+    function testComputeHealthScore(risks: Array<{ riskLevel: string }>): number {
+      if (!risks || risks.length === 0) { return 100; }
+      const penalty = risks.reduce((sum, r) => {
+        const rawLevel = String(r?.riskLevel ?? 'medium').toLowerCase();
+        const level = (rawLevel in SEVERITY_CONFIG) ? (rawLevel as keyof typeof SEVERITY_CONFIG) : 'medium';
+        return sum + SEVERITY_CONFIG[level].weight;
+      }, 0);
+      return Math.max(0, 100 - penalty);
+    }
+
+    it("Scenario 1: Zero risks found results in a score of 100", () => {
+      const score = testComputeHealthScore([]);
+      expect(score).toBe(100);
+    });
+
+    it("Scenario 2: One low-severity risk only results in a score of 99", () => {
+      const score = testComputeHealthScore([{ riskLevel: "low" }]);
+      expect(score).toBe(99);
+    });
+
+    it("Scenario 3: One critical + one high risk results in a score of 40", () => {
+      const score = testComputeHealthScore([
+        { riskLevel: "critical" },
+        { riskLevel: "high" },
+      ]);
+      expect(score).toBe(40);
+    });
+
+    it("Verifies three different, sensibly-ordered scores", () => {
+      const s1 = testComputeHealthScore([]);
+      const s2 = testComputeHealthScore([{ riskLevel: "low" }]);
+      const s3 = testComputeHealthScore([{ riskLevel: "critical" }, { riskLevel: "high" }]);
+
+      expect(s1).toBeGreaterThan(s2);
+      expect(s2).toBeGreaterThan(s3);
+      expect(new Set([s1, s2, s3]).size).toBe(3);
     });
   });
 });

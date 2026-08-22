@@ -22,6 +22,10 @@ export function BestFixRanking({ risks }: BestFixRankingProps) {
 
   const topFixes = ranked.slice(0, 3);
 
+  const isPending = (text?: string) => !text || text.startsWith('Pending AI response');
+  const isError = (text?: string) =>
+    text?.includes('unavailable') || text?.includes('skipped') || text?.includes('Verify');
+
   return (
     <div className="glass-card p-4 mt-4 animate-scale-in border-l-4 border-l-amber-500">
       <div className="flex items-center gap-2 mb-3">
@@ -44,7 +48,15 @@ export function BestFixRanking({ risks }: BestFixRankingProps) {
               <p className="text-cl-text font-semibold mb-1">
                 {fn} ({risk.riskLevel.toUpperCase()})
               </p>
-              <p className="text-cl-muted italic text-[11px]">{rec}</p>
+              <div className="text-cl-muted italic text-[11px]">
+                {isPending(rec) ? (
+                  <div className="h-3 w-48 bg-amber-500/10 animate-pulse rounded mt-1" />
+                ) : isError(rec) ? (
+                  <span className="text-red-400 font-medium">⚠️ Recommendation unavailable (backend down)</span>
+                ) : (
+                  <span>{rec}</span>
+                )}
+              </div>
             </div>
           );
         })}

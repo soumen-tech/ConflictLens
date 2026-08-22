@@ -14,7 +14,8 @@ const SEVERITY_CONFIG: Record<RiskLevel, { color: string; bg: string; label: str
 function computeHealthScore(risks: Risk[]): number {
   if (!risks || risks.length === 0) { return 100; }
   const penalty = risks.reduce((sum, r) => {
-    const level = r?.riskLevel && SEVERITY_CONFIG[r.riskLevel] ? r.riskLevel : 'medium';
+    const rawLevel = String(r?.riskLevel ?? 'medium').toLowerCase();
+    const level = (rawLevel in SEVERITY_CONFIG) ? (rawLevel as RiskLevel) : 'medium';
     return sum + SEVERITY_CONFIG[level].weight;
   }, 0);
   return Math.max(0, 100 - penalty);
@@ -34,7 +35,11 @@ export function ProjectHealth({ risks }: ProjectHealthProps) {
   const color  = healthColor(score);
 
   const counts = risks.reduce<CountByLevel>(
-    (acc, r) => ({ ...acc, [r.riskLevel]: acc[r.riskLevel] + 1 }),
+    (acc, r) => {
+      const rawLevel = String(r?.riskLevel ?? 'medium').toLowerCase();
+      const level = (rawLevel in acc) ? (rawLevel as RiskLevel) : 'medium';
+      return { ...acc, [level]: acc[level] + 1 };
+    },
     { critical: 0, high: 0, medium: 0, low: 0 }
   );
 

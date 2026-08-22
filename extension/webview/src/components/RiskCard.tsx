@@ -100,7 +100,25 @@ export function RiskCard({ risk, index }: RiskCardProps) {
           <div>
             <p className="section-label">AI Explanation</p>
             {hasAI ? (
-              <p className="text-sm text-cl-text leading-relaxed">{risk.ai_context.explanation}</p>
+              risk.ai_context.explanation.includes('unavailable') || risk.ai_context.explanation.includes('skipped') ? (
+                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-200 space-y-2">
+                  <p className="font-semibold flex items-center gap-1.5">
+                    <span>⚠️</span> AI Explanation Unavailable
+                  </p>
+                  <p className="text-[11px] leading-relaxed text-red-300">{risk.ai_context.explanation}</p>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      vscodePost({ type: 'scanNow' } as any);
+                    }}
+                    className="px-2.5 py-1 bg-red-500/20 hover:bg-red-500/30 active:bg-red-500/40 text-red-200 border border-red-500/30 rounded font-semibold text-[11px] transition-colors"
+                  >
+                    🔄 Retry Scan & AI Explanation
+                  </button>
+                </div>
+              ) : (
+                <p className="text-sm text-cl-text leading-relaxed">{risk.ai_context.explanation}</p>
+              )
             ) : (
               <div className="space-y-1.5">
                 <div className="ai-loading" style={{ width: '92%' }} />
@@ -109,9 +127,9 @@ export function RiskCard({ risk, index }: RiskCardProps) {
               </div>
             )}
           </div>
-
+ 
           {/* AI Recommendation */}
-          {hasAI && (
+          {hasAI && !risk.ai_context.explanation.includes('unavailable') && !risk.ai_context.explanation.includes('skipped') && (
             <div
               className="rounded-lg px-3 py-2.5"
               style={{ background: 'rgba(79,143,247,0.08)', border: '1px solid rgba(79,143,247,0.2)' }}
