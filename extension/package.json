@@ -2,7 +2,7 @@
   "name": "conflictlens",
   "displayName": "ConflictLens",
   "description": "AI-powered semantic conflict and security risk detection — flags issues before merge.",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "publisher": "ctrl-future",
   "repository": {
     "type": "git",
@@ -32,6 +32,11 @@
         "command": "conflictlens.openDashboard",
         "title": "ConflictLens: Open Dashboard",
         "icon": "$(dashboard)"
+      },
+      {
+        "command": "conflictlens.connectGitHub",
+        "title": "ConflictLens: Connect GitHub Profile",
+        "icon": "$(account)"
       }
     ],
     "configuration": {
