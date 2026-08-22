@@ -24,9 +24,12 @@ import { applyDiagnostics, createDiagnosticCollection } from './diagnostics';
 import { enrichWithAI } from './aiClient';
 import { DashboardPanel } from './dashboardPanel';
 import { checkCrossBranchConflicts } from './crossBranchWatcher';
+import { AuthManager } from './auth';
 
-export function activate(context: vscode.ExtensionContext): void {
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
   console.log('[ConflictLens] Extension activated (Phase 4).');
+
+  await AuthManager.init(context);
 
   const diagnosticCollection = createDiagnosticCollection();
   context.subscriptions.push(diagnosticCollection);
@@ -48,6 +51,25 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   );
   context.subscriptions.push(dashboardCommand);
+
+  // ── Command: ConflictLens: Connect GitHub Profile ─────────────────────────
+  const authCommand = vscode.commands.registerCommand(
+    'conflictlens.connectGitHub',
+    async () => {
+      await AuthManager.authenticate(context);
+    }
+  );
+  context.subscriptions.push(authCommand);
+
+  // ── URI Handler for OAuth Redirect (vscode://ctrl-future.conflictlens/auth-callback) ──
+  const uriHandler = vscode.window.registerUriHandler({
+    async handleUri(uri: vscode.Uri) {
+      if (uri.path.includes('auth-callback')) {
+        await AuthManager.handleCallback(uri, context);
+      }
+    },
+  });
+  context.subscriptions.push(uriHandler);
 
   // ── File-save listener (debounced, gated by conflictlens.autoScan) ───────────
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;

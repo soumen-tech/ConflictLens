@@ -61,7 +61,7 @@ describe("Cross-branch conflict warning integration", () => {
     expect(warningCalls.length).toBeGreaterThanOrEqual(1);
 
     const warningText = warningCalls[0][0];
-    expect(warningText).toContain("Potential merge conflict");
+    expect(warningText).toContain("conflict");
     expect(warningText).toContain("shared.js");
     expect(warningText).toContain("branch-a");
     expect(warningText).toContain("HIGH_RISK");

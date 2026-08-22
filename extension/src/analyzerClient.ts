@@ -94,32 +94,72 @@ export function getMockResult(): AnalysisResult {
 
 // Schema Normalizer deleted as contracts are unified.
 
+import {
+  analyzeBranches,
+  adaptGitConflictResult,
+  getCurrentBranch,
+} from '@conflictlens/git-engine';
+import simpleGit from 'simple-git';
+
+/**
+ * Executes a direct, in-memory local risk analysis for the active workspace.
+ */
+export async function runDirectLocalAnalysis(workspacePath: string): Promise<AnalysisResult> {
+  if (!workspacePath) {
+    return {
+      analysis_id: `scan_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      risks: [],
+    };
+  }
+
+  try {
+    const git = simpleGit({ baseDir: workspacePath });
+    const currentBranch = (await getCurrentBranch(git)) || 'main';
+    const targetBranch = 'main';
+
+    const gitResult = await analyzeBranches({
+      repositoryPath: workspacePath,
+      branchA: currentBranch,
+      branchB: targetBranch,
+    });
+
+    const risks = adaptGitConflictResult(gitResult);
+
+    return {
+      analysis_id: `scan_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      risks,
+    };
+  } catch (err) {
+    console.warn('[ConflictLens] Direct local analysis warning:', err);
+    return {
+      analysis_id: `scan_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      risks: [],
+    };
+  }
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
  * Requests a full risk analysis for the current workspace.
  *
  * Decision tree:
- *   conflictlens.apiEndpoint empty → mock data (dev/offline mode, no network call)
+ *   conflictlens.apiEndpoint empty → direct local engine scan
  *   conflictlens.apiEndpoint set   → POST to the local analysis API
- *
- * On failure, throws one of:
- *   ApiUnavailableError — service unreachable (ECONNREFUSED, DNS failure, etc.)
- *   ApiTimeoutError     — request exceeded conflictlens.apiTimeoutMs
- *   ApiMalformedError   — service responded but with unexpected / non-JSON data
- *
- * Extension.ts catches these and handles notifications; it does NOT wipe
- * diagnostics on failure so the last-known state stays visible.
  */
 export async function analyzeProject(): Promise<AnalysisResult> {
   const config    = vscode.workspace.getConfiguration();
   const endpoint  = config.get<string>('conflictlens.apiEndpoint', '').trim();
   const timeoutMs = config.get<number>('conflictlens.apiTimeoutMs', 8000);
+  const workspacePath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
 
-  // ── Mock path (offline / dev mode) ────────────────────────────────────────
+  // ── Direct local analysis (when apiEndpoint is empty) ─────────────────────
   if (!endpoint) {
-    console.log('[ConflictLens] apiEndpoint not configured — returning mock data.');
-    return getMockResult();
+    console.log('[ConflictLens] Running direct local engine scan.');
+    return runDirectLocalAnalysis(workspacePath);
   }
 
   // ── Real API path ─────────────────────────────────────────────────────────

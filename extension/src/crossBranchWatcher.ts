@@ -53,7 +53,7 @@ export async function checkCrossBranchConflicts(): Promise<void> {
         const conflicts = await predictConflicts(git, currentBranch, otherBranch);
         for (const c of conflicts) {
           vscode.window.showWarningMessage(
-            `Potential merge conflict: ${c.file} was recently changed on branch ${otherBranch} (${c.risk})`
+            `Proactive Alert: '${c.file}' on your branch '${currentBranch}' will conflict with already-pushed branch '${otherBranch}' (${c.risk})`
           );
         }
       } catch (err) {

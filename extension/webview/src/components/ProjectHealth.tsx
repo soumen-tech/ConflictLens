@@ -12,8 +12,11 @@ const SEVERITY_CONFIG: Record<RiskLevel, { color: string; bg: string; label: str
 };
 
 function computeHealthScore(risks: Risk[]): number {
-  if (risks.length === 0) { return 100; }
-  const penalty = risks.reduce((sum, r) => sum + SEVERITY_CONFIG[r.riskLevel].weight, 0);
+  if (!risks || risks.length === 0) { return 100; }
+  const penalty = risks.reduce((sum, r) => {
+    const level = r?.riskLevel && SEVERITY_CONFIG[r.riskLevel] ? r.riskLevel : 'medium';
+    return sum + SEVERITY_CONFIG[level].weight;
+  }, 0);
   return Math.max(0, 100 - penalty);
 }
 

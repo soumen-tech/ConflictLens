@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { AnalysisResult, IncomingMessage } from './types';
-import { Header }        from './components/Header';
-import { ProjectHealth } from './components/ProjectHealth';
-import { RiskCard }      from './components/RiskCard';
-import { EmptyState }    from './components/EmptyState';
+import { Header }          from './components/Header';
+import { ProjectHealth }   from './components/ProjectHealth';
+import { SecurityPosture } from './components/SecurityPosture';
+import { BestFixRanking }  from './components/BestFixRanking';
+import { RiskCard }        from './components/RiskCard';
+import { EmptyState }      from './components/EmptyState';
 
 export function App() {
   const [result,    setResult]    = useState<AnalysisResult | null>(null);
@@ -51,6 +53,12 @@ export function App() {
           <>
             {/* Health + summary */}
             <ProjectHealth risks={result.risks} />
+
+            {/* Security Posture Breakdown */}
+            <SecurityPosture risks={result.risks} />
+
+            {/* Best Fix Priority Ranking */}
+            <BestFixRanking risks={result.risks} />
 
             {/* Risk list */}
             {sortedRisks.length === 0 ? (

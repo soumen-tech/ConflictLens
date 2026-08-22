@@ -3,9 +3,10 @@ interface HeaderProps {
   riskCount:  number;
   analysisId: string | undefined;
   isLoading:  boolean;
+  developer?: { login: string; avatarUrl: string };
 }
 
-export function Header({ scanTime, riskCount, analysisId, isLoading }: HeaderProps) {
+export function Header({ scanTime, riskCount, analysisId, isLoading, developer }: HeaderProps) {
   const hasRisks = riskCount > 0;
 
   return (
@@ -47,8 +48,15 @@ export function Header({ scanTime, riskCount, analysisId, isLoading }: HeaderPro
           </div>
         </div>
 
-        {/* Status indicators */}
+        {/* Status indicators + Developer badge */}
         <div className="flex items-center gap-4">
+          {developer && (
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-cl-bg-subtle border border-cl-border/60 text-xs">
+              <img src={developer.avatarUrl} alt={developer.login} className="w-5 h-5 rounded-full" />
+              <span className="text-cl-text font-medium">@{developer.login}</span>
+            </div>
+          )}
+
           {isLoading && (
             <div className="flex items-center gap-2 text-xs text-cl-muted">
               <span className="inline-block w-2 h-2 rounded-full bg-cl-accent animate-pulse" />
