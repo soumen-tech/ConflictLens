@@ -288,24 +288,53 @@ export async function enrichWithAI(
   }
 
   const config   = vscode.workspace.getConfiguration();
-  const proxyUrl = config.get<string>('conflictlens.proxyUrl', '').trim();
+  const timeout  = config.get<number>('conflictlens.apiTimeoutMs', 8000);
+  const modelId  = config.get<string>('conflictlens.modelId', 'gemma-4-26b-a4b-it').trim();
   const apiKey   = (config.get<string>('conflictlens.gemmaApiKey', '').trim()) ||
                    (config.get<string>('conflictlens.aiApiKey', '').trim()) ||
                    (config.get<string>('conflictlens.geminiApiKey', '').trim());
-  const timeout  = config.get<number>('conflictlens.apiTimeoutMs', 8000);
-  const modelId  = config.get<string>('conflictlens.modelId', 'gemma-4-26b-a4b-it').trim();
+
+  // ── Resolve proxy URL: use setting, or auto-detect local proxy on localhost:3001 ──
+  const configuredProxy = config.get<string>('conflictlens.proxyUrl', '').trim();
+  const LOCAL_PROXY     = 'http://localhost:3001';
+
+  // Determine which proxy URL to actually use:
+  //   1. If user configured one — use it.
+  //   2. If not configured and no BYO key — probe localhost:3001 silently.
+  //   3. If user has a BYO key but no proxy configured — skip proxy entirely.
+  let effectiveProxyUrl = configuredProxy;
+  if (!effectiveProxyUrl && !apiKey) {
+    // Auto-detect: try a lightweight OPTIONS/HEAD on the local proxy.
+    // We do a short-lived fetch with a 2s timeout to see if it's reachable.
+    try {
+      const pingController = new AbortController();
+      const pingTimer = setTimeout(() => pingController.abort(), 2000);
+      const pingRes = await fetch(`${LOCAL_PROXY}/api/explain`, {
+        method: 'OPTIONS',
+        signal: pingController.signal,
+      }).catch(() => null);
+      clearTimeout(pingTimer);
+      // Any response (even 405 Method Not Allowed) means the server is up
+      if (pingRes !== null) {
+        effectiveProxyUrl = LOCAL_PROXY;
+        console.log('[ConflictLens] Auto-detected local gemma-proxy on localhost:3001.');
+      }
+    } catch {
+      // Local proxy not running — will fall through to no-AI fallback below
+    }
+  }
 
   // ── Proxy path ─────────────────────────────────────────────────────────────
-  if (proxyUrl) {
+  if (effectiveProxyUrl) {
     const deviceId = getOrCreateDeviceId(context);
-    console.log(`[ConflictLens] Proxy path — deviceId: ${deviceId}, url: ${proxyUrl}`);
+    console.log(`[ConflictLens] Proxy path — deviceId: ${deviceId}, url: ${effectiveProxyUrl}`);
 
     let proxyFailed = false;
     const enrichedRisks: Risk[] = [...result.risks];
 
     for (let i = 0; i < result.risks.length; i++) {
       const risk = result.risks[i];
-      const proxyResult = await callViaProxy(risk, deviceId, proxyUrl, timeout);
+      const proxyResult = await callViaProxy(risk, deviceId, effectiveProxyUrl, timeout);
 
       if (proxyResult === null) {
         // Proxy failed or limit reached — break and fall through to BYO-key
@@ -334,22 +363,19 @@ export async function enrichWithAI(
   // ── BYO-key path (Phase 3, unchanged) ──────────────────────────────────────
   if (!apiKey) {
     // ── Fallback when AI enrichment is unavailable or fails ────────────────────
-    const fallbackMessage = !proxyUrl && !apiKey
-      ? 'AI enrichment skipped — configure conflictlens.proxyUrl or conflictlens.gemmaApiKey in settings.'
+    // Always replace "Pending AI response..." with a real, visible message so the
+    // skeleton bars in the webview resolve instead of hanging forever.
+    const fallbackMessage = !configuredProxy && !effectiveProxyUrl && !apiKey
+      ? 'AI explanation unavailable — start the local gemma-proxy (cd backend/gemma-proxy && npm run dev) or add your Gemini API key in ConflictLens settings.'
       : 'AI explanation unavailable — check that local gemma-proxy is running on port 3001 or verify your API key.';
 
-    const fallbackRisks: Risk[] = result.risks.map((risk: Risk) => {
-      if (risk.ai_context.explanation.startsWith('Pending AI response')) {
-        return {
-          ...risk,
-          ai_context: {
-            explanation: fallbackMessage,
-            recommendation: 'Verify proxy server status or API key in ConflictLens settings.',
-          },
-        };
-      }
-      return risk;
-    });
+    const fallbackRisks: Risk[] = result.risks.map((risk: Risk) => ({
+      ...risk,
+      ai_context: {
+        explanation:    fallbackMessage,
+        recommendation: 'Run: cd backend/gemma-proxy && npm run dev — then re-run ConflictLens: Scan Now.',
+      },
+    }));
 
     return { ...result, risks: fallbackRisks };
   }
